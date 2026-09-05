@@ -7,9 +7,6 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      devOptions: {
-        enabled: true
-      },
       includeAssets: ['favicon.ico'],
       manifest: {
         name: 'GYM F.R.E.A.K Ecosystem',
@@ -18,20 +15,16 @@ export default defineConfig({
         theme_color: '#0A0E17',
         background_color: '#0A0E17',
         display: 'standalone',
-        scope: '/',
-        start_url: '/',
         icons: [
           {
             src: 'https://cdn-icons-png.flaticon.com/512/2964/2964514.png',
             sizes: '192x192',
-            type: 'image/png',
-            purpose: 'any maskable'
+            type: 'image/png'
           },
           {
             src: 'https://cdn-icons-png.flaticon.com/512/2964/2964514.png',
             sizes: '512x512',
-            type: 'image/png',
-            purpose: 'any maskable'
+            type: 'image/png'
           }
         ]
       }
