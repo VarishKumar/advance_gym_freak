@@ -106,6 +106,107 @@ const playGymBeep = () => {
   }
 };
 
+function PlateCalculatorModal({ onClose }) {
+  const [calcWeight, setCalcWeight] = useState(60);
+  const [calcReps, setCalcReps] = useState(8);
+  const [barWeight, setBarWeight] = useState(20);
+
+  const oneRepMax = Math.round(calcWeight * (1 + calcReps / 30));
+
+  const calculatePlates = (target) => {
+    let weightPerSide = (target - barWeight) / 2;
+    if (weightPerSide <= 0) return [];
+    
+    const availablePlates = [25, 20, 15, 10, 5, 2.5, 1.25];
+    const platesNeeded = [];
+
+    for (let plate of availablePlates) {
+      while (weightPerSide >= plate) {
+        platesNeeded.push(plate);
+        weightPerSide -= plate;
+      }
+    }
+    return platesNeeded;
+  };
+
+  const platesPerSide = calculatePlates(calcWeight);
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+      <div className="w-full max-w-md bg-[#121824] border border-[#1E293B] p-6 rounded-2xl shadow-2xl space-y-5 text-white">
+        <div className="flex justify-between items-center border-b border-gray-800 pb-3">
+          <h3 className="text-base font-bold text-[#00E5FF] flex items-center gap-2">
+            🧮 1RM & Barbell Plate Breakdown
+          </h3>
+          <button onClick={onClose} className="text-gray-400 hover:text-white">✕</button>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="text-xs text-gray-400 block mb-1">Lifted Weight (kg)</label>
+            <input 
+              type="number" 
+              value={calcWeight} 
+              onChange={e => setCalcWeight(Math.max(0, Number(e.target.value)))}
+              className="w-full bg-[#0A0E17] border border-gray-700 rounded-xl p-2.5 text-sm text-white outline-none focus:border-[#00E5FF]"
+            />
+          </div>
+          <div>
+            <label className="text-xs text-gray-400 block mb-1">Reps Performed</label>
+            <input 
+              type="number" 
+              value={calcReps} 
+              onChange={e => setCalcReps(Math.max(1, Number(e.target.value)))}
+              className="w-full bg-[#0A0E17] border border-gray-700 rounded-xl p-2.5 text-sm text-white outline-none focus:border-[#00E5FF]"
+            />
+          </div>
+        </div>
+
+        <div className="bg-[#0A0E17] border border-gray-800 p-4 rounded-xl flex justify-between items-center">
+          <div>
+            <span className="text-[10px] uppercase font-bold text-gray-400 block">Estimated 1-Rep Max</span>
+            <span className="text-2xl font-black text-emerald-400">{oneRepMax} kg</span>
+          </div>
+          <div className="text-right">
+            <span className="text-[10px] uppercase font-bold text-gray-400 block">Bar Weight</span>
+            <span className="text-sm font-bold text-white">{barWeight} kg (Olympic)</span>
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <span className="text-xs font-bold text-gray-300 block">
+            Plates to load <span className="text-[#00E5FF]">PER SIDE</span> (for {calcWeight}kg):
+          </span>
+          {platesPerSide.length === 0 ? (
+            <p className="text-xs text-gray-500 italic bg-[#0A0E17] p-3 rounded-xl">
+              Target weight is equal to or less than the empty barbell.
+            </p>
+          ) : (
+            <div className="flex flex-wrap gap-2">
+              {platesPerSide.map((p, idx) => (
+                <span 
+                  key={idx}
+                  className="bg-[#00E5FF]/10 text-[#00E5FF] border border-[#00E5FF]/30 font-black text-xs px-3 py-1.5 rounded-lg flex items-center gap-1 shadow-sm"
+                >
+                  ⚪ {p} kg
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <button 
+          type="button" 
+          onClick={onClose}
+          className="w-full bg-[#1E293B] hover:bg-gray-800 text-white font-bold py-2.5 rounded-xl text-xs transition"
+        >
+          Close Calculator
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function FloatingRestTimer({ initialSeconds, onCancel }) {
   const [timeLeft, setTimeLeft] = useState(initialSeconds);
   const [totalTime, setTotalTime] = useState(initialSeconds);
@@ -860,6 +961,7 @@ export default function App() {
   });
 
   const [isEditing, setIsEditing] = useState(false);
+  const [showCalculator, setShowCalculator] = useState(false);
   const [currentTab, setCurrentTab] = useState('dashboard');
   const [waterGlasses, setWaterGlasses] = useState(() => {
     const saved = localStorage.getItem('gym_freak_water');
@@ -1067,8 +1169,14 @@ export default function App() {
           </div>
           <div className="flex items-center gap-2 no-print">
             <button 
-              onClick={handleExportTelemetry}
+              onClick={() => setShowCalculator(true)}
               className="text-xs bg-[#00E5FF]/10 hover:bg-[#00E5FF]/20 text-[#00E5FF] px-3 py-2 rounded-xl border border-[#00E5FF]/30 transition flex items-center gap-1.5 font-bold"
+            >
+              🧮 1RM & Plates
+            </button>
+            <button 
+              onClick={handleExportTelemetry}
+              className="text-xs bg-[#1E293B] hover:bg-gray-800 text-gray-200 px-3 py-2 rounded-xl border border-gray-700 transition flex items-center gap-1.5 font-semibold"
             >
               📄 Export PDF
             </button>
@@ -1255,6 +1363,10 @@ export default function App() {
           initialSeconds={activeRestSeconds}
           onCancel={() => setActiveRestSeconds(null)}
         />
+      )}
+
+      {showCalculator && (
+        <PlateCalculatorModal onClose={() => setShowCalculator(false)} />
       )}
 
       {isEditing && (
