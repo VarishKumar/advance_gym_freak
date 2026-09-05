@@ -1,0 +1,24 @@
+@import "https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css";
+@media print {
+  body {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+  nav, button, header .no-print {
+    display: none !important;
+  }
+  .bg-\[\#121824\], .bg-\[\#0A0E17\] {
+    background-color: #f8fafc !important;
+    color: #0f172a !important;
+    border-color: #cbd5e1 !important;
+  }
+  .text-white {
+    color: #0f172a !important;
+  }
+  .text-gray-400, .text-gray-500 {
+    color: #475569 !important;
+  }
+}
