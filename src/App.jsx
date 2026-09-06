@@ -377,6 +377,7 @@ function ConsultationView({ currentUser, profile, selectedConditions, biomarkers
             {
               user_id: currentUser.id,
               patient_name: profile?.name || 'Athlete',
+              doctor_name: selectedExpert.name,
               expert_name: selectedExpert.name,
               specialty: selectedExpert.role,
               appointment_date: bookingDate,
@@ -533,7 +534,7 @@ function ConsultationView({ currentUser, profile, selectedConditions, biomarkers
             {myBookings.map((b) => (
               <div key={b.id} className="bg-[#0A0E17] border border-gray-800 p-4 rounded-xl flex justify-between items-center">
                 <div>
-                  <h4 className="font-bold text-sm text-white">{b.expert_name}</h4>
+                  <h4 className="font-bold text-sm text-white">{b.doctor_name || b.expert_name}</h4>
                   <p className="text-xs text-gray-400 mt-0.5">{b.specialty}</p>
                   <span className="text-[11px] text-[#00E5FF] block mt-2 font-semibold">
                     📅 {b.appointment_date} at {b.slot_time}
