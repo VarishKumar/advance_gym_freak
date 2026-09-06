@@ -90,18 +90,30 @@ const EXPERTS = [
 const TIME_SLOTS = ['10:00 AM', '11:30 AM', '03:00 PM', '05:30 PM', '07:00 PM'];
 
 const INDIAN_FOOD_PRESETS = [
-  { name: 'Roti / Chapati (Wheat)', serving: '1 piece (35g)', cal: 104, pro: 3.1, carb: 20, fat: 0.5 },
-  { name: 'Cooked White Rice', serving: '1 katori (150g)', cal: 195, pro: 4.1, carb: 42, fat: 0.4 },
-  { name: 'Dal Tadka / Moong Dal', serving: '1 katori (150g)', cal: 150, pro: 9.0, carb: 21, fat: 3.5 },
-  { name: 'Paneer (Raw / Sautéed)', serving: '100g', cal: 265, pro: 18.3, carb: 3.5, fat: 20.8 },
-  { name: 'Boiled Eggs', serving: '2 whole eggs', cal: 155, pro: 13.0, carb: 1.1, fat: 10.6 },
-  { name: 'Egg Whites', serving: '3 whites', cal: 52, pro: 11.0, carb: 0.7, fat: 0.2 },
-  { name: 'Chicken Breast (Cooked)', serving: '100g', cal: 165, pro: 31.0, carb: 0.0, fat: 3.6 },
-  { name: 'Whey Protein (1 Scoop)', serving: '33g scoop', cal: 130, pro: 24.0, carb: 3.0, fat: 1.5 },
-  { name: 'Curd / Dahi (Low Fat)', serving: '1 katori (150g)', cal: 90, pro: 5.5, carb: 6.8, fat: 3.0 },
-  { name: 'Sattu Drink (Chana)', serving: '40g powder', cal: 164, pro: 10.2, carb: 26.0, fat: 2.1 },
-  { name: 'Oats with Milk', serving: '1 bowl (50g oats + 200ml)', cal: 310, pro: 13.5, carb: 45, fat: 6.5 },
-  { name: 'Sprouted Moong Salad', serving: '1 bowl (100g)', cal: 135, pro: 9.2, carb: 22, fat: 0.8 }
+  // PURE VEGETARIAN STAPLES
+  { name: 'Soya Chunks (Nutrela)', serving: '50g (Dry boiled)', cal: 172, pro: 26.0, carb: 16.5, fat: 0.5, category: 'veg' },
+  { name: 'Paneer (Raw/Sautéed)', serving: '100g', cal: 265, pro: 18.3, carb: 3.5, fat: 20.8, category: 'veg' },
+  { name: 'Tofu (Soya Paneer)', serving: '100g', cal: 83, pro: 10.0, carb: 1.9, fat: 5.3, category: 'veg' },
+  { name: 'Dal (Moong/Arhar/Masoor)', serving: '1 big katori (150g)', cal: 150, pro: 9.0, carb: 21.0, fat: 3.5, category: 'veg' },
+  { name: 'Rajma / Chana Curry', serving: '1 katori (150g)', cal: 180, pro: 9.5, carb: 26.0, fat: 4.0, category: 'veg' },
+  { name: 'Roti / Chapati (Wheat)', serving: '1 piece (35g)', cal: 104, pro: 3.1, carb: 20.0, fat: 0.5, category: 'veg' },
+  { name: 'Cooked White Rice', serving: '1 katori (150g)', cal: 195, pro: 4.1, carb: 42.0, fat: 0.4, category: 'veg' },
+  { name: 'Curd / Dahi (Low Fat)', serving: '1 katori (150g)', cal: 90, pro: 5.5, carb: 6.8, fat: 3.0, category: 'veg' },
+  { name: 'Sattu Drink (Roasted Chana)', serving: '40g powder (1 glass)', cal: 164, pro: 10.2, carb: 26.0, fat: 2.1, category: 'veg' },
+  { name: 'Oats with Milk & Nuts', serving: '1 bowl (50g oats + milk)', cal: 310, pro: 13.5, carb: 45.0, fat: 6.5, category: 'veg' },
+  { name: 'Sprouted Moong Salad', serving: '1 bowl (100g)', cal: 135, pro: 9.2, carb: 22.0, fat: 0.8, category: 'veg' },
+  { name: 'Peanut Butter (Natural)', serving: '2 tbsp (32g)', cal: 190, pro: 8.0, carb: 6.0, fat: 16.0, category: 'veg' },
+  { name: 'Whey Protein (1 Scoop)', serving: '33g scoop with water', cal: 130, pro: 24.0, carb: 3.0, fat: 1.5, category: 'veg' },
+
+  // EGGETARIAN
+  { name: 'Boiled Whole Eggs', serving: '2 whole eggs', cal: 155, pro: 13.0, carb: 1.1, fat: 10.6, category: 'egg' },
+  { name: 'Egg Whites (Boiled)', serving: '3 egg whites', cal: 52, pro: 11.0, carb: 0.7, fat: 0.2, category: 'egg' },
+  { name: 'Egg Omelette (2 Eggs + Veggies)', serving: '1 serving', cal: 180, pro: 14.0, carb: 3.0, fat: 12.0, category: 'egg' },
+
+  // NON-VEG
+  { name: 'Chicken Breast (Grilled/Cooked)', serving: '100g', cal: 165, pro: 31.0, carb: 0.0, fat: 3.6, category: 'non_veg' },
+  { name: 'Chicken Curry (Home Style)', serving: '150g (3-4 pcs)', cal: 240, pro: 25.0, carb: 6.0, fat: 12.0, category: 'non_veg' },
+  { name: 'Fish Fillet (Rohu/Basa)', serving: '100g', cal: 125, pro: 22.0, carb: 0.0, fat: 4.0, category: 'non_veg' }
 ];
 
 const playGymBeep = () => {
@@ -121,10 +133,10 @@ const playGymBeep = () => {
   }
 };
 
-function FoodLoggerView({ currentUser, targetCalories, targetProtein }) {
+function FoodLoggerView({ currentUser, targetCalories, targetProtein, profileDietPref, onUpdateDietPref }) {
   const [logs, setLogs] = useState([]);
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
-  const [loading, setLoading] = useState(false);
+  const [dietFilter, setDietFilter] = useState(profileDietPref || 'veg'); // 'veg', 'egg', 'non_veg'
 
   const [customName, setCustomName] = useState('');
   const [customCal, setCustomCal] = useState('');
@@ -135,7 +147,6 @@ function FoodLoggerView({ currentUser, targetCalories, targetProtein }) {
 
   const loadFoodLogs = async () => {
     if (!currentUser?.id) return;
-    setLoading(true);
     try {
       const { data, error } = await supabase
         .from('food_logs')
@@ -144,12 +155,9 @@ function FoodLoggerView({ currentUser, targetCalories, targetProtein }) {
         .eq('logged_date', selectedDate)
         .order('created_at', { ascending: true });
 
-      if (error) throw error;
-      if (data) setLogs(data);
+      if (data && !error) setLogs(data);
     } catch (err) {
       console.error('Error fetching food logs:', err);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -223,6 +231,12 @@ function FoodLoggerView({ currentUser, targetCalories, targetProtein }) {
     }
   };
 
+  const visiblePresets = INDIAN_FOOD_PRESETS.filter(item => {
+    if (dietFilter === 'veg') return item.category === 'veg';
+    if (dietFilter === 'egg') return item.category === 'veg' || item.category === 'egg';
+    return true; // non_veg shows all
+  });
+
   const totalCaloriesLogged = Math.round(logs.reduce((sum, item) => sum + (Number(item.calories) || 0), 0));
   const totalProteinLogged = Math.round(logs.reduce((sum, item) => sum + (Number(item.protein) || 0), 0));
   const totalCarbsLogged = Math.round(logs.reduce((sum, item) => sum + (Number(item.carbs) || 0), 0));
@@ -236,13 +250,13 @@ function FoodLoggerView({ currentUser, targetCalories, targetProtein }) {
       <div className="bg-[#121824] border border-[#1E293B] p-6 rounded-2xl flex flex-col md:flex-row justify-between md:items-center gap-4">
         <div>
           <span className="text-xs font-bold uppercase tracking-widest text-[#00E5FF]">Fuel & Metabolism</span>
-          <h2 className="text-2xl font-black mt-1">Indian Macro & Calorie Logger</h2>
+          <h2 className="text-2xl font-black mt-1">Indian Macro & Diet Logger</h2>
           <p className="text-xs text-gray-400 mt-1 max-w-lg">
-            Track daily Indian staple food meals against your personalized macro and calorie targets.
+            Track daily nutrition tailored to your dietary lifestyle with high-protein vegetarian and regional staples.
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <label className="text-xs text-gray-400 font-bold">Date:</label>
+
+        <div className="flex items-center gap-3">
           <input
             type="date"
             value={selectedDate}
@@ -252,10 +266,45 @@ function FoodLoggerView({ currentUser, targetCalories, targetProtein }) {
         </div>
       </div>
 
+      {/* DIET PREFERENCE SELECTOR */}
+      <div className="bg-[#121824] border border-[#1E293B] p-4 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <span className="text-xs font-bold text-gray-300 block">Your Dietary Lifestyle:</span>
+          <span className="text-[11px] text-gray-500">Filter presets to match your nutritional values</span>
+        </div>
+        <div className="inline-flex bg-[#0A0E17] p-1 rounded-xl border border-gray-800">
+          <button
+            onClick={() => { setDietFilter('veg'); onUpdateDietPref('veg'); }}
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${
+              dietFilter === 'veg' ? 'bg-emerald-500 text-black shadow-md' : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            🌱 Pure Veg
+          </button>
+          <button
+            onClick={() => { setDietFilter('egg'); onUpdateDietPref('egg'); }}
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${
+              dietFilter === 'egg' ? 'bg-amber-400 text-black shadow-md' : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            🥚 Eggetarian
+          </button>
+          <button
+            onClick={() => { setDietFilter('non_veg'); onUpdateDietPref('non_veg'); }}
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${
+              dietFilter === 'non_veg' ? 'bg-[#00E5FF] text-black shadow-md' : 'text-gray-400 hover:text-white'
+            }`}
+          >
+            🍗 Non-Veg
+          </button>
+        </div>
+      </div>
+
+      {/* DYNAMIC PROGRESS BARS */}
       <div className="grid md:grid-cols-2 gap-4">
         <div className="bg-[#121824] border border-[#1E293B] p-5 rounded-2xl space-y-2">
           <div className="flex justify-between items-center text-xs">
-            <span className="font-bold text-gray-300">Daily Calories Burn / Target</span>
+            <span className="font-bold text-gray-300">Daily Calories / Target</span>
             <span className="font-black text-[#00E5FF]">{totalCaloriesLogged} / {targetCalories} kcal ({calProgress}%)</span>
           </div>
           <div className="w-full bg-[#0A0E17] h-3.5 rounded-full overflow-hidden border border-gray-800">
@@ -265,7 +314,7 @@ function FoodLoggerView({ currentUser, targetCalories, targetProtein }) {
             />
           </div>
           <span className="text-[10px] text-gray-500 block">
-            {targetCalories - totalCaloriesLogged > 0 ? `${targetCalories - totalCaloriesLogged} kcal remaining` : 'Target reached!'}
+            {targetCalories - totalCaloriesLogged > 0 ? `${targetCalories - totalCaloriesLogged} kcal remaining` : 'Target hit! 🔥'}
           </span>
         </div>
 
@@ -281,16 +330,19 @@ function FoodLoggerView({ currentUser, targetCalories, targetProtein }) {
             />
           </div>
           <span className="text-[10px] text-gray-500 block">
-            Carbs: {totalCarbsLogged}g • Fats: {totalFatsLogged}g logged today
+            Carbs: {totalCarbsLogged}g • Fats: {totalFatsLogged}g logged
           </span>
         </div>
       </div>
 
+      {/* PRESETS GRID */}
       <div className="bg-[#121824] border border-[#1E293B] p-6 rounded-2xl space-y-4">
         <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
           <div>
-            <h3 className="font-bold text-base flex items-center gap-2">⚡ Quick Add Indian Presets</h3>
-            <p className="text-xs text-gray-400">Click to log staple food items instantly</p>
+            <h3 className="font-bold text-base flex items-center gap-2">
+              ⚡ Quick Add {dietFilter === 'veg' ? 'Vegetarian' : dietFilter === 'egg' ? 'Veg & Egg' : 'All'} Presets
+            </h3>
+            <p className="text-xs text-gray-400">Click any card to add it directly to your logs</p>
           </div>
           <div className="flex items-center gap-2">
             <span className="text-xs text-gray-400 font-bold">Meal Slot:</span>
@@ -308,18 +360,23 @@ function FoodLoggerView({ currentUser, targetCalories, targetProtein }) {
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 pt-2">
-          {INDIAN_FOOD_PRESETS.map((item, idx) => (
+          {visiblePresets.map((item, idx) => (
             <div
               key={idx}
               onClick={() => handleAddPreset(item)}
-              className="bg-[#0A0E17] border border-gray-800 hover:border-[#00E5FF] p-3 rounded-xl cursor-pointer transition flex flex-col justify-between group"
+              className="bg-[#0A0E17] border border-gray-800 hover:border-[#00E5FF] p-3.5 rounded-xl cursor-pointer transition flex flex-col justify-between group shadow-sm"
             >
               <div>
-                <h4 className="text-xs font-bold text-white group-hover:text-[#00E5FF] transition">{item.name}</h4>
-                <span className="text-[10px] text-gray-500 block mt-0.5">{item.serving}</span>
+                <div className="flex justify-between items-start">
+                  <h4 className="text-xs font-bold text-white group-hover:text-[#00E5FF] transition">{item.name}</h4>
+                  <span className="text-[10px]">
+                    {item.category === 'veg' ? '🌱' : item.category === 'egg' ? '🥚' : '🍗'}
+                  </span>
+                </div>
+                <span className="text-[10px] text-gray-500 block mt-1">{item.serving}</span>
               </div>
               <div className="mt-3 pt-2 border-t border-gray-900 flex justify-between items-center text-[11px]">
-                <span className="text-gray-300 font-bold">{item.cal} kcal</span>
+                <span className="text-gray-400 font-bold">{item.cal} kcal</span>
                 <span className="text-emerald-400 font-black">+{item.pro}g Pro</span>
               </div>
             </div>
@@ -327,15 +384,16 @@ function FoodLoggerView({ currentUser, targetCalories, targetProtein }) {
         </div>
       </div>
 
+      {/* CUSTOM FOOD ENTRY */}
       <div className="bg-[#121824] border border-[#1E293B] p-6 rounded-2xl space-y-4">
-        <h3 className="font-bold text-base">✏️ Add Custom Food Item</h3>
+        <h3 className="font-bold text-base">✏️ Add Custom Dish / Food</h3>
         <form onSubmit={handleAddCustom} className="grid grid-cols-2 sm:grid-cols-6 gap-3">
           <div className="col-span-2">
-            <label className="text-xs text-gray-400 block mb-1">Item Name</label>
+            <label className="text-xs text-gray-400 block mb-1">Food Name</label>
             <input
               type="text"
               required
-              placeholder="e.g. Soya Chunks Curry"
+              placeholder="e.g. Sattu Paratha, Besan Chilla"
               value={customName}
               onChange={(e) => setCustomName(e.target.value)}
               className="w-full bg-[#0A0E17] border border-gray-700 rounded-xl p-2.5 text-xs text-white outline-none focus:border-[#00E5FF]"
@@ -383,6 +441,7 @@ function FoodLoggerView({ currentUser, targetCalories, targetProtein }) {
         </form>
       </div>
 
+      {/* TODAY LOGGED ITEMS */}
       <div className="bg-[#121824] border border-[#1E293B] p-6 rounded-2xl space-y-4">
         <div className="flex justify-between items-center border-b border-gray-800 pb-3">
           <h3 className="font-bold text-base">📑 Meal Logs for {selectedDate}</h3>
@@ -1021,7 +1080,7 @@ function ConsultationView({ currentUser, profile, selectedConditions, biomarkers
         specialty: selectedExpert.role,
         appointment_date: bookingDate,
         slot_time: selectedTime,
-        notes: `Clinical Profile: BMI ${((profile?.weight || 70) / ((profile?.height || 170) / 100) ** 2).toFixed(1)}, Sugar: ${biomarkers?.fastingSugar || 'Not logged'}`,
+        notes: `Clinical Profile: Diet - ${profile?.diet_pref || 'Veg'}, BMI ${((profile?.weight || 70) / ((profile?.height || 170) / 100) ** 2).toFixed(1)}, Sugar: ${biomarkers?.fastingSugar || 'Not logged'}`,
         status: 'Paid & Confirmed'
       };
 
@@ -1359,12 +1418,16 @@ function ClinicalDietPanel({ profile, selectedConditions, targetCalories, target
   const remainingCalories = targetCalories - (targetProtein * 4) - fatCalories;
   const targetCarbs = Math.max(50, Math.round(remainingCalories / 4));
 
+  const isPureVeg = profile?.diet_pref === 'veg';
+
   return (
     <div className="bg-[#121824] border border-[#1E293B] p-6 rounded-2xl space-y-5">
       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2 border-b border-gray-800 pb-4">
         <div>
           <h3 className="text-lg font-bold flex items-center gap-2">🥗 Clinical Nutrition & Macro Protocol</h3>
-          <p className="text-xs text-gray-400">Precision macro breakdown and condition-specific dietary guidelines.</p>
+          <p className="text-xs text-gray-400">
+            Targeting for: <span className="text-[#00E5FF] font-bold">{isPureVeg ? '🌱 Pure Vegetarian Diet' : profile?.diet_pref === 'egg' ? '🥚 Eggetarian Diet' : '🍗 Non-Vegetarian Diet'}</span>
+          </p>
         </div>
         <span className="text-xs bg-[#00E5FF]/10 text-[#00E5FF] px-3 py-1 rounded-lg border border-[#00E5FF]/30 font-bold self-start sm:self-auto">
           {profile.goal.replace('_', ' ').toUpperCase()} TARGET
@@ -1395,13 +1458,15 @@ function ClinicalDietPanel({ profile, selectedConditions, targetCalories, target
           <div className="bg-[#0A0E17] border border-gray-800 p-3 rounded-xl">
             <span className="font-bold text-emerald-400 block mb-1">Recommended Staples</span>
             <p className="text-gray-400 leading-relaxed">
-              Paneer, tofu, chicken breast, eggs, Greek yogurt, lentils, oats, chia seeds, and leafy greens.
+              {isPureVeg
+                ? 'Soya chunks (52% protein), paneer, tofu, yellow & green moong dal, rajma, sattu, roasted chana, chia seeds, oats, and Greek yogurt.'
+                : 'Paneer, boiled whole eggs/egg whites, chicken breast, fish, moong lentils, curd, oats, and seeds.'}
             </p>
           </div>
           <div className="bg-[#0A0E17] border border-gray-800 p-3 rounded-xl">
             <span className="font-bold text-rose-400 block mb-1">Items to Minimize</span>
             <p className="text-gray-400 leading-relaxed">
-              Ultra-processed seed oils, refined sugars, high-sodium packaged snacks, and sugary soft drinks.
+              Ultra-processed refined flour (maida), excess refined seed oils, added sugar syrups, and packaged deep-fried snacks.
             </p>
           </div>
         </div>
@@ -1410,13 +1475,13 @@ function ClinicalDietPanel({ profile, selectedConditions, targetCalories, target
           <div className="bg-amber-400/10 border border-amber-400/30 p-3 rounded-xl text-xs text-amber-300 space-y-1 mt-2">
             <span className="font-bold block mb-1">⚠️ Active Clinical Nutrition Overrides:</span>
             {selectedConditions.includes('diabetes') && (
-              <p>• Prioritize low GI grains (oats/millets) and eat raw salad 10 minutes before carbs to stabilize blood sugar.</p>
+              <p>• Prioritize low GI grains (oats/millets/sattu) and eat raw cucumber/salad 10 minutes before meals to stabilize insulin.</p>
             )}
             {selectedConditions.includes('hypertension') && (
-              <p>• Limit processed sodium below 2,000 mg/day; supplement with potassium-rich tender coconut water & spinach.</p>
+              <p>• Limit processed sodium below 2,000 mg/day; supplement with potassium-rich coconut water & palak/spinach.</p>
             )}
             {selectedConditions.includes('pcod') && (
-              <p>• Avoid inflammatory dairy/refined gluten; include pumpkin seeds & flax seeds for healthy androgen balance.</p>
+              <p>• Avoid refined gluten; include pumpkin seeds & roasted flax seeds for healthy androgen hormone balance.</p>
             )}
           </div>
         )}
@@ -1544,7 +1609,7 @@ function HealthRiskSection({ profile, selectedConditions, setSelectedConditions,
 
 function ProfileModal({ profile, onSave, onClose }) {
   const [data, setData] = useState(profile || {
-    name: '', age: '22', gender: 'male', height: '175', weight: '70', activity: '1.375', goal: 'fat_loss'
+    name: '', age: '22', gender: 'male', height: '175', weight: '70', activity: '1.375', goal: 'fat_loss', diet_pref: 'veg'
   });
 
   return (
@@ -1579,6 +1644,14 @@ function ProfileModal({ profile, onSave, onClose }) {
             <label className="text-xs text-gray-400">Weight (kg)</label>
             <input type="number" value={data.weight} onChange={e => setData({...data, weight: e.target.value})} className="w-full bg-[#0A0E17] border border-gray-700 rounded-lg p-2.5 text-sm text-white outline-none focus:border-[#00E5FF]" />
           </div>
+        </div>
+        <div>
+          <label className="text-xs text-gray-400">Diet Preference</label>
+          <select value={data.diet_pref || 'veg'} onChange={e => setData({...data, diet_pref: e.target.value})} className="w-full bg-[#0A0E17] border border-gray-700 rounded-lg p-2.5 text-sm text-white outline-none focus:border-[#00E5FF]">
+            <option value="veg">🌱 Pure Vegetarian (No eggs, no meat)</option>
+            <option value="egg">🥚 Eggetarian (Vegetarian + Eggs)</option>
+            <option value="non_veg">🍗 Non-Vegetarian (All foods)</option>
+          </select>
         </div>
         <div>
           <label className="text-xs text-gray-400">Activity Level</label>
@@ -1740,6 +1813,13 @@ export default function App() {
     setExerciseLogs(updated);
   };
 
+  const handleUpdateDietPref = (newPref) => {
+    setProfile(prev => ({
+      ...prev,
+      diet_pref: newPref
+    }));
+  };
+
   const handleSignOut = async () => {
     await supabase.auth.signOut();
   };
@@ -1874,7 +1954,7 @@ export default function App() {
               <div>
                 <h1 className="text-2xl font-black">Welcome Back, {profile.name} 👋</h1>
                 <p className="text-xs text-gray-400 mt-1">
-                  Current Target: <span className="text-[#00E5FF] font-bold uppercase">{profile.goal.replace('_', ' ')}</span> • Height: {profile.height}cm • Weight: {profile.weight}kg
+                  Target: <span className="text-[#00E5FF] font-bold uppercase">{profile.goal.replace('_', ' ')}</span> • Diet: <span className="text-emerald-400 font-bold uppercase">{profile.diet_pref || 'Veg'}</span> • {profile.height}cm • {profile.weight}kg
                 </p>
               </div>
               <div className="flex items-center gap-3">
@@ -2005,6 +2085,8 @@ export default function App() {
             currentUser={currentUser}
             targetCalories={targetCalories}
             targetProtein={targetProtein}
+            profileDietPref={profile.diet_pref || 'veg'}
+            onUpdateDietPref={handleUpdateDietPref}
           />
         )}
 
