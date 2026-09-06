@@ -357,63 +357,50 @@ function ConsultationView({ currentUser, profile, selectedConditions, biomarkers
 
   const handleBooking = async (e) => {
     e.preventDefault();
-    if (!selectedExpert || !bookingDate) return;
+    if (!selectedExpert || !bookingDate) {
+      alert("Please select both a date and an expert!");
+      return;
+    }
 
-    const numericFee = parseInt(selectedExpert.fee.replace(/\D/g, ''), 10) || 799;
+    setBookingLoading(true);
+    setStatusMsg('');
 
-    const options = {
-      key: "rzp_test_YourKeyHere",
-      amount: numericFee * 100,
-      currency: "INR",
-      name: "GYM F.R.E.A.K Clinical Tele-Health",
-      description: `1-on-1 Session with ${selectedExpert.name}`,
-      handler: async function (response) {
-        setBookingLoading(true);
-        setStatusMsg('');
-        try {
-          const notes = `Clinical Profile: BMI ${((profile?.weight || 70) / ((profile?.height || 170) / 100) ** 2).toFixed(1)}, Conditions: ${selectedConditions?.join(', ') || 'None'}, Sugar: ${biomarkers?.fastingSugar || 'Not logged'}, Payment ID: ${response.razorpay_payment_id || 'DEMO_PAID'}`;
+    try {
+      const payload = {
+        user_id: currentUser?.id,
+        patient_name: profile?.name || 'Athlete',
+        doctor_name: selectedExpert.name,
+        expert_name: selectedExpert.name,
+        specialty: selectedExpert.role,
+        appointment_date: bookingDate,
+        slot_time: selectedTime,
+        notes: `Clinical Profile: BMI ${((profile?.weight || 70) / ((profile?.height || 170) / 100) ** 2).toFixed(1)}, Sugar: ${biomarkers?.fastingSugar || 'Not logged'}`,
+        status: 'Paid & Confirmed'
+      };
 
-          const { error } = await supabase.from('consultations').insert([
-            {
-              user_id: currentUser.id,
-              patient_name: profile?.name || 'Athlete',
-              doctor_name: selectedExpert.name,
-              expert_name: selectedExpert.name,
-              specialty: selectedExpert.role,
-              appointment_date: bookingDate,
-              slot_time: selectedTime,
-              notes: notes,
-              status: 'Paid & Confirmed'
-            }
-          ]);
+      console.log("Submitting payload:", payload);
 
-          if (error) throw error;
+      const { data, error } = await supabase
+        .from('consultations')
+        .insert([payload])
+        .select();
 
-          setStatusMsg(`Payment Successful (Txn: ${response.razorpay_payment_id || 'DEMO_OK'}). Your appointment with ${selectedExpert.name} is confirmed!`);
-          setSelectedExpert(null);
-          setBookingDate('');
-          loadBookings();
-        } catch (err) {
-          console.error('Booking sync failed:', err);
-          setStatusMsg('Payment processed, but failed to sync booking to cloud database.');
-        } finally {
-          setBookingLoading(false);
-        }
-      },
-      prefill: {
-        name: profile?.name || 'Athlete',
-        email: currentUser?.email || 'user@gymfreak.com'
-      },
-      theme: {
-        color: "#00E5FF"
+      if (error) {
+        console.error("Direct Supabase Error:", error);
+        alert(`Booking Error: ${error.message} (Code: ${error.code})`);
+        setStatusMsg(`Failed: ${error.message}`);
+      } else {
+        alert(`Booking Confirmed Successfully with ${selectedExpert.name}! 🎉`);
+        setStatusMsg(`Appointment confirmed with ${selectedExpert.name}!`);
+        setSelectedExpert(null);
+        setBookingDate('');
+        loadBookings();
       }
-    };
-
-    if (window.Razorpay) {
-      const rzp = new window.Razorpay(options);
-      rzp.open();
-    } else {
-      options.handler({ razorpay_payment_id: "pay_test_" + Math.random().toString(36).substring(2, 9) });
+    } catch (err) {
+      console.error("Unexpected Error:", err);
+      alert(`Runtime Exception: ${err.message}`);
+    } finally {
+      setBookingLoading(false);
     }
   };
 
