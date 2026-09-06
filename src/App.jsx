@@ -1,14 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from './supabaseClient';
 
-const C = {
-  bg: '#0A0E17',
-  card: '#121824',
-  accent: '#00E5FF',
-  text: '#FFFFFF',
-  border: '#1E293B'
-};
-
 const WORKOUT_DATABASE = {
   home: {
     title: "Home Workout (Bodyweight & Resistance)",
@@ -182,13 +174,17 @@ function PRWallView({ exerciseLogs, onAddCustomExercise }) {
 
   return (
     <div className="w-full space-y-6">
-      <div className="bg-[#121824] border border-[#1E293B] p-6 rounded-2xl flex flex-col md:flex-row justify-between md:items-center gap-4">
-        <div>
-          <span className="text-xs font-bold uppercase tracking-widest text-[#00E5FF]">Strength Legacy</span>
-          <h2 className="text-2xl font-black mt-1">🏆 Personal Record (PR) Trophy Wall</h2>
-          <p className="text-xs text-gray-400 mt-1 max-w-lg">
-            Track your all-time heaviest lifts and estimated 1-Rep Max badges automatically computed from workout logs.
-          </p>
+      <div className="relative overflow-hidden rounded-3xl p-6 md:p-8 border border-white/10 bg-gradient-to-r from-[#121824]/90 via-[#0A0E17]/80 to-[#121824]/90 backdrop-blur-xl shadow-[0_0_50px_rgba(0,229,255,0.06)]">
+        <div className="relative z-10 flex flex-col md:flex-row justify-between md:items-center gap-4">
+          <div>
+            <span className="text-[10px] font-black uppercase tracking-[0.25em] text-[#00E5FF] px-2.5 py-1 rounded-full bg-[#00E5FF]/10 border border-[#00E5FF]/30 inline-block mb-2">
+              Hall of Overload
+            </span>
+            <h2 className="text-3xl font-black tracking-tight text-white">🏆 PR Trophy Wall</h2>
+            <p className="text-xs text-gray-400 mt-1 max-w-lg">
+              Automated 1-Rep Max benchmarks calculated directly from your logged workout records.
+            </p>
+          </div>
         </div>
       </div>
 
@@ -200,39 +196,41 @@ function PRWallView({ exerciseLogs, onAddCustomExercise }) {
           return (
             <div
               key={idx}
-              className={`p-5 rounded-2xl border transition relative overflow-hidden flex flex-col justify-between ${
+              className={`group relative rounded-2xl p-5 border transition-all duration-300 flex flex-col justify-between ${
                 hasPR
-                  ? 'bg-gradient-to-br from-[#121824] to-[#0a1526] border-[#00E5FF]/40 shadow-[0_0_15px_rgba(0,229,255,0.1)]'
-                  : 'bg-[#121824] border-gray-800/80 opacity-70'
+                  ? 'bg-[#121824]/70 border-[#00E5FF]/30 hover:border-[#00E5FF] hover:shadow-[0_0_30px_rgba(0,229,255,0.2)] backdrop-blur-md'
+                  : 'bg-[#0A0E17]/50 border-white/5 opacity-60'
               }`}
             >
               <div>
                 <div className="flex justify-between items-start">
-                  <span className="text-2xl">{lift.icon}</span>
-                  <span className={`text-[10px] font-black uppercase px-2.5 py-1 rounded-md border ${
-                    hasPR ? 'bg-[#00E5FF]/10 text-[#00E5FF] border-[#00E5FF]/30' : 'bg-gray-800 text-gray-500 border-gray-700'
+                  <span className="text-3xl filter drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]">{lift.icon}</span>
+                  <span className={`text-[9px] font-black uppercase px-2.5 py-1 rounded-full border ${
+                    hasPR ? 'bg-[#00E5FF]/15 text-[#00E5FF] border-[#00E5FF]/40' : 'bg-white/5 text-gray-500 border-white/10'
                   }`}>
                     {hasPR ? 'RECORD HOLDER' : 'LOCKED'}
                   </span>
                 </div>
-                <h3 className="text-base font-bold text-white mt-3">{lift.title}</h3>
-                <p className="text-[11px] text-gray-400 truncate mt-0.5">
-                  {hasPR ? pr.exerciseFound : 'Log a set in tracker to unlock'}
+                <h3 className="text-base font-black text-white mt-4 tracking-wide">{lift.title}</h3>
+                <p className="text-[11px] text-gray-400 truncate mt-0.5 font-medium">
+                  {hasPR ? pr.exerciseFound : 'Log this lift to unlock trophy'}
                 </p>
               </div>
 
-              <div className="mt-5 pt-3 border-t border-gray-800/80 flex justify-between items-end">
+              <div className="mt-6 pt-4 border-t border-white/5 flex justify-between items-end">
                 <div>
-                  <span className="text-[10px] uppercase text-gray-500 block font-semibold">Max Lift Logged</span>
-                  <span className="text-2xl font-black text-white">
+                  <span className="text-[9px] uppercase tracking-wider text-gray-500 block font-bold">Max Weight</span>
+                  <span className="text-2xl font-black font-mono text-white tracking-tight">
                     {hasPR ? `${pr.maxWeight} kg` : '--'}
                   </span>
-                  {hasPR && <span className="text-xs text-gray-400 ml-1">× {pr.maxReps}</span>}
+                  {hasPR && <span className="text-xs text-gray-400 ml-1 font-mono">× {pr.maxReps}</span>}
                 </div>
                 {hasPR && (
                   <div className="text-right">
-                    <span className="text-[9px] uppercase text-emerald-400 block font-bold">Est 1-Rep Max</span>
-                    <span className="text-lg font-black text-emerald-400">{pr.est1RM} kg</span>
+                    <span className="text-[9px] uppercase tracking-wider text-emerald-400 block font-bold">Est. 1RM</span>
+                    <span className="text-xl font-black font-mono text-emerald-400 drop-shadow-[0_0_10px_rgba(52,211,153,0.3)]">
+                      {pr.est1RM} kg
+                    </span>
                   </div>
                 )}
               </div>
@@ -241,32 +239,34 @@ function PRWallView({ exerciseLogs, onAddCustomExercise }) {
         })}
       </div>
 
-      <div className="bg-[#121824] border border-[#1E293B] p-6 rounded-2xl space-y-4">
+      <div className="rounded-3xl p-6 border border-white/10 bg-[#121824]/60 backdrop-blur-xl shadow-xl space-y-4">
         <div>
-          <h3 className="font-bold text-base flex items-center gap-2">🛠️ Custom Exercise Builder</h3>
+          <h3 className="font-black text-base flex items-center gap-2 text-white">
+            🛠️ Custom Exercise Builder
+          </h3>
           <p className="text-xs text-gray-400 mt-0.5">
-            Add custom machines, cables, or regional gym variations to your daily tracker splits.
+            Create any gym machine, cable variant, or bodyweight progression to embed in your workout routine.
           </p>
         </div>
 
-        <form onSubmit={handleCreateCustom} className="grid sm:grid-cols-5 gap-3 pt-1">
+        <form onSubmit={handleCreateCustom} className="grid sm:grid-cols-5 gap-3 pt-2">
           <div className="sm:col-span-2">
-            <label className="text-xs text-gray-400 block mb-1">Exercise Name</label>
+            <label className="text-[11px] font-bold text-gray-400 block mb-1">Exercise Name</label>
             <input
               type="text"
               required
               placeholder="e.g. Incline Smith Press, Cable Bayesian Curl"
               value={customName}
               onChange={(e) => setCustomName(e.target.value)}
-              className="w-full bg-[#0A0E17] border border-gray-700 text-xs p-2.5 rounded-xl text-white outline-none focus:border-[#00E5FF]"
+              className="w-full bg-[#0A0E17]/80 border border-white/10 text-xs p-3 rounded-xl text-white outline-none focus:border-[#00E5FF] transition"
             />
           </div>
           <div>
-            <label className="text-xs text-gray-400 block mb-1">Target Muscle</label>
+            <label className="text-[11px] font-bold text-gray-400 block mb-1">Target Muscle</label>
             <select
               value={customTarget}
               onChange={(e) => setCustomTarget(e.target.value)}
-              className="w-full bg-[#0A0E17] border border-gray-700 text-xs p-2.5 rounded-xl text-white outline-none focus:border-[#00E5FF]"
+              className="w-full bg-[#0A0E17]/80 border border-white/10 text-xs p-3 rounded-xl text-white outline-none focus:border-[#00E5FF] transition"
             >
               <option value="Chest">Chest</option>
               <option value="Back">Back</option>
@@ -277,11 +277,11 @@ function PRWallView({ exerciseLogs, onAddCustomExercise }) {
             </select>
           </div>
           <div>
-            <label className="text-xs text-gray-400 block mb-1">Assign to Split</label>
+            <label className="text-[11px] font-bold text-gray-400 block mb-1">Assign to Split</label>
             <select
               value={customSplit}
               onChange={(e) => setCustomSplit(e.target.value)}
-              className="w-full bg-[#0A0E17] border border-gray-700 text-xs p-2.5 rounded-xl text-white outline-none focus:border-[#00E5FF]"
+              className="w-full bg-[#0A0E17]/80 border border-white/10 text-xs p-3 rounded-xl text-white outline-none focus:border-[#00E5FF] transition"
             >
               <option value="gym_ppl">Push Pull Legs</option>
               <option value="gym_two_muscle">Two Muscle / Day</option>
@@ -292,7 +292,7 @@ function PRWallView({ exerciseLogs, onAddCustomExercise }) {
           <div className="flex items-end">
             <button
               type="submit"
-              className="w-full bg-[#00E5FF] hover:bg-[#00B4D8] text-black font-black py-2.5 rounded-xl text-xs transition"
+              className="w-full bg-gradient-to-r from-[#00E5FF] to-[#00B4D8] hover:shadow-[0_0_20px_rgba(0,229,255,0.4)] text-black font-black py-3 rounded-xl text-xs uppercase tracking-wider transition active:scale-95"
             >
               + Add Exercise
             </button>
@@ -417,51 +417,55 @@ function FoodLoggerView({ currentUser, targetCalories, targetProtein, profileDie
 
   return (
     <div className="w-full space-y-6">
-      <div className="bg-[#121824] border border-[#1E293B] p-6 rounded-2xl flex flex-col md:flex-row justify-between md:items-center gap-4">
-        <div>
-          <span className="text-xs font-bold uppercase tracking-widest text-[#00E5FF]">Fuel & Metabolism</span>
-          <h2 className="text-2xl font-black mt-1">Indian Macro & Diet Logger</h2>
-          <p className="text-xs text-gray-400 mt-1 max-w-lg">
-            Track daily nutrition tailored to your dietary lifestyle with high-protein vegetarian and regional staples.
-          </p>
-        </div>
+      <div className="relative overflow-hidden rounded-3xl p-6 md:p-8 border border-white/10 bg-gradient-to-r from-[#121824]/90 via-[#0A0E17]/80 to-[#121824]/90 backdrop-blur-xl shadow-xl">
+        <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
+          <div>
+            <span className="text-[10px] font-black uppercase tracking-[0.25em] text-[#00E5FF] px-2.5 py-1 rounded-full bg-[#00E5FF]/10 border border-[#00E5FF]/30 inline-block mb-2">
+              Macro Engine
+            </span>
+            <h2 className="text-3xl font-black tracking-tight text-white">Indian Diet & Macro Logger</h2>
+            <p className="text-xs text-gray-400 mt-1 max-w-lg">
+              Precision nutrition balance with regional Indian staple presets and clean macro tracking.
+            </p>
+          </div>
 
-        <div className="flex items-center gap-3">
-          <input
-            type="date"
-            value={selectedDate}
-            onChange={(e) => setSelectedDate(e.target.value)}
-            className="bg-[#0A0E17] border border-gray-700 text-xs px-3 py-2 rounded-xl text-white outline-none focus:border-[#00E5FF]"
-          />
+          <div className="flex items-center gap-3">
+            <input
+              type="date"
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+              className="bg-[#0A0E17]/80 border border-white/10 text-xs px-3.5 py-2.5 rounded-xl text-white outline-none focus:border-[#00E5FF] transition font-mono shadow-inner"
+            />
+          </div>
         </div>
       </div>
 
-      <div className="bg-[#121824] border border-[#1E293B] p-4 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="rounded-2xl p-4 border border-white/10 bg-[#121824]/60 backdrop-blur-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-lg">
         <div>
-          <span className="text-xs font-bold text-gray-300 block">Your Dietary Lifestyle:</span>
-          <span className="text-[11px] text-gray-500">Filter presets to match your nutritional values</span>
+          <span className="text-xs font-bold text-gray-200 block">Dietary Lifestyle:</span>
+          <span className="text-[11px] text-gray-400">Filter presets based on your personal intake values</span>
         </div>
-        <div className="inline-flex bg-[#0A0E17] p-1 rounded-xl border border-gray-800">
+        <div className="inline-flex bg-[#0A0E17]/90 p-1 rounded-xl border border-white/5 shadow-inner">
           <button
             onClick={() => { setDietFilter('veg'); onUpdateDietPref('veg'); }}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${
-              dietFilter === 'veg' ? 'bg-emerald-500 text-black shadow-md' : 'text-gray-400 hover:text-white'
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-black transition flex items-center gap-1.5 ${
+              dietFilter === 'veg' ? 'bg-emerald-500 text-black shadow-[0_0_12px_rgba(16,185,129,0.3)]' : 'text-gray-400 hover:text-white'
             }`}
           >
             🌱 Pure Veg
           </button>
           <button
             onClick={() => { setDietFilter('egg'); onUpdateDietPref('egg'); }}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${
-              dietFilter === 'egg' ? 'bg-amber-400 text-black shadow-md' : 'text-gray-400 hover:text-white'
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-black transition flex items-center gap-1.5 ${
+              dietFilter === 'egg' ? 'bg-amber-400 text-black shadow-[0_0_12px_rgba(251,191,36,0.3)]' : 'text-gray-400 hover:text-white'
             }`}
           >
             🥚 Eggetarian
           </button>
           <button
             onClick={() => { setDietFilter('non_veg'); onUpdateDietPref('non_veg'); }}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${
-              dietFilter === 'non_veg' ? 'bg-[#00E5FF] text-black shadow-md' : 'text-gray-400 hover:text-white'
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-black transition flex items-center gap-1.5 ${
+              dietFilter === 'non_veg' ? 'bg-[#00E5FF] text-black shadow-[0_0_12px_rgba(0,229,255,0.3)]' : 'text-gray-400 hover:text-white'
             }`}
           >
             🍗 Non-Veg
@@ -470,53 +474,57 @@ function FoodLoggerView({ currentUser, targetCalories, targetProtein, profileDie
       </div>
 
       <div className="grid md:grid-cols-2 gap-4">
-        <div className="bg-[#121824] border border-[#1E293B] p-5 rounded-2xl space-y-2">
+        <div className="rounded-3xl p-6 border border-white/10 bg-[#121824]/60 backdrop-blur-xl shadow-xl space-y-3">
           <div className="flex justify-between items-center text-xs">
-            <span className="font-bold text-gray-300">Daily Calories / Target</span>
-            <span className="font-black text-[#00E5FF]">{totalCaloriesLogged} / {targetCalories} kcal ({calProgress}%)</span>
+            <span className="font-bold text-gray-300">Daily Calories Burn / Target</span>
+            <span className="font-black font-mono text-[#00E5FF]">{totalCaloriesLogged} / {targetCalories} kcal ({calProgress}%)</span>
           </div>
-          <div className="w-full bg-[#0A0E17] h-3.5 rounded-full overflow-hidden border border-gray-800">
+          <div className="w-full bg-[#0A0E17] h-4 rounded-full overflow-hidden p-0.5 border border-white/5 shadow-inner">
             <div
-              className={`h-full transition-all duration-500 ${calProgress >= 100 ? 'bg-amber-400' : 'bg-[#00E5FF]'}`}
+              className={`h-full rounded-full transition-all duration-500 ${
+                calProgress >= 100 
+                  ? 'bg-gradient-to-r from-amber-500 to-amber-300 shadow-[0_0_15px_rgba(245,158,11,0.5)]' 
+                  : 'bg-gradient-to-r from-[#00E5FF] to-[#00B4D8] shadow-[0_0_15px_rgba(0,229,255,0.5)]'
+              }`}
               style={{ width: `${calProgress}%` }}
             />
           </div>
-          <span className="text-[10px] text-gray-500 block">
-            {targetCalories - totalCaloriesLogged > 0 ? `${targetCalories - totalCaloriesLogged} kcal remaining` : 'Target hit! 🔥'}
+          <span className="text-[11px] text-gray-400 block font-medium">
+            {targetCalories - totalCaloriesLogged > 0 ? `${targetCalories - totalCaloriesLogged} kcal remaining` : 'Target achieved! 🔥'}
           </span>
         </div>
 
-        <div className="bg-[#121824] border border-[#1E293B] p-5 rounded-2xl space-y-2">
+        <div className="rounded-3xl p-6 border border-white/10 bg-[#121824]/60 backdrop-blur-xl shadow-xl space-y-3">
           <div className="flex justify-between items-center text-xs">
             <span className="font-bold text-gray-300">Daily Protein Target</span>
-            <span className="font-black text-emerald-400">{totalProteinLogged} / {targetProtein} g ({proProgress}%)</span>
+            <span className="font-black font-mono text-emerald-400">{totalProteinLogged} / {targetProtein} g ({proProgress}%)</span>
           </div>
-          <div className="w-full bg-[#0A0E17] h-3.5 rounded-full overflow-hidden border border-gray-800">
+          <div className="w-full bg-[#0A0E17] h-4 rounded-full overflow-hidden p-0.5 border border-white/5 shadow-inner">
             <div
-              className="h-full bg-emerald-400 transition-all duration-500"
+              className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-emerald-300 transition-all duration-500 shadow-[0_0_15px_rgba(16,185,129,0.5)]"
               style={{ width: `${proProgress}%` }}
             />
           </div>
-          <span className="text-[10px] text-gray-500 block">
-            Carbs: {totalCarbsLogged}g • Fats: {totalFatsLogged}g logged
+          <span className="text-[11px] text-gray-400 block font-mono">
+            Carbs: {totalCarbsLogged}g • Fats: {totalFatsLogged}g logged today
           </span>
         </div>
       </div>
 
-      <div className="bg-[#121824] border border-[#1E293B] p-6 rounded-2xl space-y-4">
+      <div className="rounded-3xl p-6 border border-white/10 bg-[#121824]/60 backdrop-blur-xl shadow-xl space-y-4">
         <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
           <div>
-            <h3 className="font-bold text-base flex items-center gap-2">
+            <h3 className="font-black text-base flex items-center gap-2 text-white">
               ⚡ Quick Add {dietFilter === 'veg' ? 'Vegetarian' : dietFilter === 'egg' ? 'Veg & Egg' : 'All'} Presets
             </h3>
-            <p className="text-xs text-gray-400">Click any card to add it directly to your logs</p>
+            <p className="text-xs text-gray-400">Tap any item to instantly add it to your daily tally</p>
           </div>
           <div className="flex items-center gap-2">
             <span className="text-xs text-gray-400 font-bold">Meal Slot:</span>
             <select
               value={mealType}
               onChange={(e) => setMealType(e.target.value)}
-              className="bg-[#0A0E17] border border-gray-700 text-xs px-3 py-1.5 rounded-xl text-white outline-none focus:border-[#00E5FF]"
+              className="bg-[#0A0E17]/80 border border-white/10 text-xs px-3.5 py-1.5 rounded-xl text-white outline-none focus:border-[#00E5FF] transition"
             >
               <option value="Breakfast">Breakfast</option>
               <option value="Lunch">Lunch</option>
@@ -531,18 +539,18 @@ function FoodLoggerView({ currentUser, targetCalories, targetProtein, profileDie
             <div
               key={idx}
               onClick={() => handleAddPreset(item)}
-              className="bg-[#0A0E17] border border-gray-800 hover:border-[#00E5FF] p-3.5 rounded-xl cursor-pointer transition flex flex-col justify-between group shadow-sm"
+              className="group relative bg-[#0A0E17]/70 border border-white/5 hover:border-[#00E5FF]/40 p-4 rounded-2xl cursor-pointer transition-all duration-200 flex flex-col justify-between hover:shadow-[0_0_20px_rgba(0,229,255,0.15)] active:scale-95"
             >
               <div>
                 <div className="flex justify-between items-start">
-                  <h4 className="text-xs font-bold text-white group-hover:text-[#00E5FF] transition">{item.name}</h4>
-                  <span className="text-[10px]">
+                  <h4 className="text-xs font-black text-white group-hover:text-[#00E5FF] transition tracking-tight">{item.name}</h4>
+                  <span className="text-xs">
                     {item.category === 'veg' ? '🌱' : item.category === 'egg' ? '🥚' : '🍗'}
                   </span>
                 </div>
                 <span className="text-[10px] text-gray-500 block mt-1">{item.serving}</span>
               </div>
-              <div className="mt-3 pt-2 border-t border-gray-900 flex justify-between items-center text-[11px]">
+              <div className="mt-4 pt-3 border-t border-white/5 flex justify-between items-center text-[11px] font-mono">
                 <span className="text-gray-400 font-bold">{item.cal} kcal</span>
                 <span className="text-emerald-400 font-black">+{item.pro}g Pro</span>
               </div>
@@ -551,55 +559,55 @@ function FoodLoggerView({ currentUser, targetCalories, targetProtein, profileDie
         </div>
       </div>
 
-      <div className="bg-[#121824] border border-[#1E293B] p-6 rounded-2xl space-y-4">
-        <h3 className="font-bold text-base">✏️ Add Custom Dish / Food</h3>
+      <div className="rounded-3xl p-6 border border-white/10 bg-[#121824]/60 backdrop-blur-xl shadow-xl space-y-4">
+        <h3 className="font-black text-base text-white">✏️ Add Custom Food Entry</h3>
         <form onSubmit={handleAddCustom} className="grid grid-cols-2 sm:grid-cols-6 gap-3">
           <div className="col-span-2">
-            <label className="text-xs text-gray-400 block mb-1">Food Name</label>
+            <label className="text-[11px] font-bold text-gray-400 block mb-1">Food / Recipe Name</label>
             <input
               type="text"
               required
               placeholder="e.g. Sattu Paratha, Besan Chilla"
               value={customName}
               onChange={(e) => setCustomName(e.target.value)}
-              className="w-full bg-[#0A0E17] border border-gray-700 rounded-xl p-2.5 text-xs text-white outline-none focus:border-[#00E5FF]"
+              className="w-full bg-[#0A0E17]/80 border border-white/10 rounded-xl p-3 text-xs text-white outline-none focus:border-[#00E5FF] transition"
             />
           </div>
           <div>
-            <label className="text-xs text-gray-400 block mb-1">Calories</label>
+            <label className="text-[11px] font-bold text-gray-400 block mb-1">Calories</label>
             <input
               type="number"
               required
               placeholder="kcal"
               value={customCal}
               onChange={(e) => setCustomCal(e.target.value)}
-              className="w-full bg-[#0A0E17] border border-gray-700 rounded-xl p-2.5 text-xs text-white outline-none focus:border-[#00E5FF]"
+              className="w-full bg-[#0A0E17]/80 border border-white/10 rounded-xl p-3 text-xs text-white outline-none focus:border-[#00E5FF] transition font-mono"
             />
           </div>
           <div>
-            <label className="text-xs text-gray-400 block mb-1">Protein (g)</label>
+            <label className="text-[11px] font-bold text-gray-400 block mb-1">Protein (g)</label>
             <input
               type="number"
               placeholder="g"
               value={customPro}
               onChange={(e) => setCustomPro(e.target.value)}
-              className="w-full bg-[#0A0E17] border border-gray-700 rounded-xl p-2.5 text-xs text-white outline-none focus:border-[#00E5FF]"
+              className="w-full bg-[#0A0E17]/80 border border-white/10 rounded-xl p-3 text-xs text-white outline-none focus:border-[#00E5FF] transition font-mono"
             />
           </div>
           <div>
-            <label className="text-xs text-gray-400 block mb-1">Carbs (g)</label>
+            <label className="text-[11px] font-bold text-gray-400 block mb-1">Carbs (g)</label>
             <input
               type="number"
               placeholder="g"
               value={customCarb}
               onChange={(e) => setCustomCarb(e.target.value)}
-              className="w-full bg-[#0A0E17] border border-gray-700 rounded-xl p-2.5 text-xs text-white outline-none focus:border-[#00E5FF]"
+              className="w-full bg-[#0A0E17]/80 border border-white/10 rounded-xl p-3 text-xs text-white outline-none focus:border-[#00E5FF] transition font-mono"
             />
           </div>
           <div className="flex items-end">
             <button
               type="submit"
-              className="w-full bg-[#00E5FF] hover:bg-[#00B4D8] text-black font-black py-2.5 rounded-xl text-xs transition"
+              className="w-full bg-[#00E5FF] hover:bg-[#00B4D8] text-black font-black py-3 rounded-xl text-xs uppercase tracking-wider transition active:scale-95 shadow-[0_0_15px_rgba(0,229,255,0.2)]"
             >
               + Log Food
             </button>
@@ -607,40 +615,40 @@ function FoodLoggerView({ currentUser, targetCalories, targetProtein, profileDie
         </form>
       </div>
 
-      <div className="bg-[#121824] border border-[#1E293B] p-6 rounded-2xl space-y-4">
-        <div className="flex justify-between items-center border-b border-gray-800 pb-3">
-          <h3 className="font-bold text-base">📑 Meal Logs for {selectedDate}</h3>
-          <span className="text-xs text-gray-400">{logs.length} items logged</span>
+      <div className="rounded-3xl p-6 border border-white/10 bg-[#121824]/60 backdrop-blur-xl shadow-xl space-y-4">
+        <div className="flex justify-between items-center border-b border-white/5 pb-3">
+          <h3 className="font-black text-base text-white">📑 Logged Meals for {selectedDate}</h3>
+          <span className="text-xs text-gray-400 font-mono">{logs.length} items logged</span>
         </div>
 
         {logs.length === 0 ? (
           <p className="text-xs text-gray-500 py-6 text-center">
-            No food entries logged for this date. Click on any preset above to add your first meal!
+            No food entries logged for this date. Tap on any preset above to start logging!
           </p>
         ) : (
-          <div className="divide-y divide-gray-800">
+          <div className="divide-y divide-white/5">
             {logs.map((item) => (
               <div key={item.id} className="py-3 flex justify-between items-center">
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-bold text-white">{item.food_name}</span>
-                    <span className="text-[10px] bg-gray-800 text-[#00E5FF] px-2 py-0.5 rounded border border-gray-700">
+                    <span className="text-[9px] bg-white/5 text-[#00E5FF] px-2 py-0.5 rounded-md border border-white/10 font-bold uppercase">
                       {item.meal_type}
                     </span>
                   </div>
-                  <span className="text-[10px] text-gray-500 block mt-0.5">
+                  <span className="text-[10px] text-gray-400 block mt-0.5 font-mono">
                     {item.serving_size} • {item.carbs}g C • {item.fats}g F
                   </span>
                 </div>
                 <div className="flex items-center gap-4">
-                  <div className="text-right">
+                  <div className="text-right font-mono">
                     <span className="text-xs font-bold text-white block">{item.calories} kcal</span>
-                    <span className="text-[11px] font-black text-emerald-400">{item.protein}g Protein</span>
+                    <span className="text-[11px] font-black text-emerald-400">+{item.protein}g Pro</span>
                   </div>
                   <button
                     onClick={() => handleDeleteLog(item.id)}
                     className="text-gray-500 hover:text-rose-400 text-xs px-2 py-1 rounded transition"
-                    title="Remove item"
+                    title="Remove entry"
                   >
                     ✕
                   </button>
@@ -658,13 +666,13 @@ function BeforeAfterSlider({ beforeUrl, afterUrl, beforeLabel, afterLabel }) {
   const [sliderPos, setSliderPos] = useState(50);
 
   return (
-    <div className="relative w-full max-w-md mx-auto aspect-[3/4] rounded-2xl overflow-hidden select-none border-2 border-[#1E293B] shadow-2xl bg-black">
+    <div className="relative w-full max-w-md mx-auto aspect-[3/4] rounded-3xl overflow-hidden select-none border-2 border-white/10 shadow-[0_0_40px_rgba(0,0,0,0.8)] bg-black">
       <img 
         src={afterUrl} 
         alt="After Transformation" 
         className="absolute inset-0 w-full h-full object-cover" 
       />
-      <span className="absolute bottom-4 right-4 z-10 bg-black/80 text-[#00E5FF] text-[11px] font-black uppercase px-3 py-1 rounded-md border border-[#00E5FF]/40 backdrop-blur-sm">
+      <span className="absolute bottom-4 right-4 z-10 bg-black/80 text-[#00E5FF] text-[10px] font-black uppercase px-3 py-1.5 rounded-lg border border-[#00E5FF]/40 backdrop-blur-md">
         {afterLabel || 'Recent Check-in'}
       </span>
 
@@ -677,7 +685,7 @@ function BeforeAfterSlider({ beforeUrl, afterUrl, beforeLabel, afterLabel }) {
           alt="Before Transformation" 
           className="absolute inset-0 w-full h-full object-cover" 
         />
-        <span className="absolute bottom-4 left-4 z-10 bg-black/80 text-rose-400 text-[11px] font-black uppercase px-3 py-1 rounded-md border border-rose-500/40 backdrop-blur-sm">
+        <span className="absolute bottom-4 left-4 z-10 bg-black/80 text-rose-400 text-[10px] font-black uppercase px-3 py-1.5 rounded-lg border border-rose-500/40 backdrop-blur-md">
           {beforeLabel || 'Baseline Photo'}
         </span>
       </div>
@@ -691,10 +699,10 @@ function BeforeAfterSlider({ beforeUrl, afterUrl, beforeLabel, afterLabel }) {
         className="absolute inset-0 w-full h-full opacity-0 cursor-ew-resize z-20"
       />
       <div 
-        className="absolute top-0 bottom-0 w-1 bg-[#00E5FF] pointer-events-none shadow-[0_0_15px_#00E5FF]" 
+        className="absolute top-0 bottom-0 w-0.5 bg-[#00E5FF] pointer-events-none shadow-[0_0_15px_#00E5FF]" 
         style={{ left: `${sliderPos}%` }}
       >
-        <div className="absolute top-1/2 -translate-y-1/2 -left-4 w-8 h-8 rounded-full bg-[#0A0E17] border-2 border-[#00E5FF] flex items-center justify-center text-xs text-[#00E5FF] font-black shadow-lg">
+        <div className="absolute top-1/2 -translate-y-1/2 -left-3.5 w-7 h-7 rounded-full bg-[#0A0E17] border-2 border-[#00E5FF] flex items-center justify-center text-[10px] text-[#00E5FF] font-black shadow-[0_0_12px_#00E5FF]">
           ↔
         </div>
       </div>
@@ -722,8 +730,7 @@ function TransformationVaultView({ currentUser, profile }) {
         .eq('user_id', currentUser.id)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      if (data) {
+      if (data && !error) {
         setPhotos(data);
         if (data.length >= 2) {
           setSelectedBeforeId(data[data.length - 1].id);
@@ -776,11 +783,10 @@ function TransformationVaultView({ currentUser, profile }) {
 
       if (dbError) throw dbError;
 
-      alert('Progress photo logged successfully! 📸');
+      alert('Check-in photo logged to vault! 📸');
       setCaption('');
       loadPhotos();
     } catch (err) {
-      console.error('Upload failed:', err);
       alert(`Upload Error: ${err.message}`);
     } finally {
       setUploading(false);
@@ -788,13 +794,9 @@ function TransformationVaultView({ currentUser, profile }) {
   };
 
   const handleDelete = async (photoId) => {
-    if (!confirm('Are you sure you want to remove this check-in?')) return;
+    if (!confirm('Remove this check-in from your vault?')) return;
     try {
-      const { error } = await supabase
-        .from('progress_photos')
-        .delete()
-        .eq('id', photoId);
-
+      const { error } = await supabase.from('progress_photos').delete().eq('id', photoId);
       if (error) throw error;
       loadPhotos();
     } catch (err) {
@@ -807,34 +809,36 @@ function TransformationVaultView({ currentUser, profile }) {
 
   return (
     <div className="w-full space-y-6">
-      <div className="bg-[#121824] border border-[#1E293B] p-6 rounded-2xl flex flex-col md:flex-row justify-between md:items-center gap-4">
+      <div className="relative overflow-hidden rounded-3xl p-6 md:p-8 border border-white/10 bg-gradient-to-r from-[#121824]/90 via-[#0A0E17]/80 to-[#121824]/90 backdrop-blur-xl shadow-xl flex flex-col md:flex-row justify-between md:items-center gap-4">
         <div>
-          <span className="text-xs font-bold uppercase tracking-widest text-[#00E5FF]">Cyber Vault</span>
-          <h2 className="text-2xl font-black mt-1">Visual Transformation & Physique Vault</h2>
+          <span className="text-[10px] font-black uppercase tracking-[0.25em] text-[#00E5FF] px-2.5 py-1 rounded-full bg-[#00E5FF]/10 border border-[#00E5FF]/30 inline-block mb-2">
+            Visual Vault
+          </span>
+          <h2 className="text-3xl font-black tracking-tight text-white">Physique & Transformation Vault</h2>
           <p className="text-xs text-gray-400 mt-1 max-w-lg">
-            Track visual muscle density, body recomposition, and compare any two check-in dates with the split-screen slider.
+            Side-by-side progression analysis with the interactive visual split comparison tool.
           </p>
         </div>
-        <div className="bg-[#0A0E17] border border-gray-800 px-4 py-3 rounded-xl text-center">
-          <span className="text-xs text-gray-500 block uppercase font-bold">Total Check-ins</span>
-          <span className="text-2xl font-black text-[#00E5FF]">{photos.length}</span>
+        <div className="bg-[#0A0E17]/80 border border-white/10 px-5 py-3 rounded-2xl text-center shadow-inner">
+          <span className="text-[10px] text-gray-400 block uppercase font-bold tracking-wider">Check-ins</span>
+          <span className="text-2xl font-black font-mono text-[#00E5FF]">{photos.length}</span>
         </div>
       </div>
 
       {photos.length >= 2 && beforePhoto && afterPhoto && (
-        <div className="bg-[#121824] border border-[#1E293B] p-6 rounded-2xl space-y-5">
-          <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3 border-b border-gray-800 pb-4">
+        <div className="rounded-3xl p-6 border border-white/10 bg-[#121824]/60 backdrop-blur-xl shadow-2xl space-y-5">
+          <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3 border-b border-white/5 pb-4">
             <div>
-              <h3 className="text-base font-bold text-white flex items-center gap-2">
-                ⚡ Interactive Before / After Comparison
+              <h3 className="text-base font-black text-white flex items-center gap-2">
+                ⚡ Interactive Comparison
               </h3>
-              <p className="text-xs text-gray-400">Drag the slider left and right to inspect biomechanical progress</p>
+              <p className="text-xs text-gray-400">Drag the center handle to inspect muscular recomposition</p>
             </div>
             <div className="flex items-center gap-2">
               <select
                 value={selectedBeforeId || ''}
                 onChange={(e) => setSelectedBeforeId(e.target.value)}
-                className="bg-[#0A0E17] border border-rose-500/40 text-rose-300 text-xs px-2.5 py-1.5 rounded-lg outline-none"
+                className="bg-[#0A0E17] border border-rose-500/40 text-rose-300 text-xs px-2.5 py-1.5 rounded-lg outline-none font-mono"
               >
                 {photos.map((p) => (
                   <option key={`b-${p.id}`} value={p.id}>
@@ -846,7 +850,7 @@ function TransformationVaultView({ currentUser, profile }) {
               <select
                 value={selectedAfterId || ''}
                 onChange={(e) => setSelectedAfterId(e.target.value)}
-                className="bg-[#0A0E17] border border-[#00E5FF]/40 text-[#00E5FF] text-xs px-2.5 py-1.5 rounded-lg outline-none"
+                className="bg-[#0A0E17] border border-[#00E5FF]/40 text-[#00E5FF] text-xs px-2.5 py-1.5 rounded-lg outline-none font-mono"
               >
                 {photos.map((p) => (
                   <option key={`a-${p.id}`} value={p.id}>
@@ -866,35 +870,35 @@ function TransformationVaultView({ currentUser, profile }) {
         </div>
       )}
 
-      <div className="bg-[#121824] border border-[#1E293B] p-6 rounded-2xl space-y-4">
-        <h3 className="font-bold text-base flex items-center gap-2">📸 Upload New Body Check-in Photo</h3>
+      <div className="rounded-3xl p-6 border border-white/10 bg-[#121824]/60 backdrop-blur-xl shadow-xl space-y-4">
+        <h3 className="font-black text-base text-white">📸 Add Check-in Photo</h3>
         <div className="grid md:grid-cols-4 gap-3">
           <div>
-            <label className="text-xs text-gray-400 block mb-1">Scale Weight (kg)</label>
+            <label className="text-[11px] font-bold text-gray-400 block mb-1">Weight (kg)</label>
             <input
               type="number"
               value={weight}
               onChange={(e) => setWeight(e.target.value)}
               placeholder="e.g. 72"
-              className="w-full bg-[#0A0E17] border border-gray-700 text-xs p-2.5 rounded-xl text-white outline-none focus:border-[#00E5FF]"
+              className="w-full bg-[#0A0E17]/80 border border-white/10 text-xs p-3 rounded-xl text-white outline-none focus:border-[#00E5FF] transition font-mono"
             />
           </div>
           <div>
-            <label className="text-xs text-gray-400 block mb-1">Estimated Body Fat % (Optional)</label>
+            <label className="text-[11px] font-bold text-gray-400 block mb-1">Body Fat % (Optional)</label>
             <input
               type="number"
               value={bodyFat}
               onChange={(e) => setBodyFat(e.target.value)}
               placeholder="e.g. 14.5"
-              className="w-full bg-[#0A0E17] border border-gray-700 text-xs p-2.5 rounded-xl text-white outline-none focus:border-[#00E5FF]"
+              className="w-full bg-[#0A0E17]/80 border border-white/10 text-xs p-3 rounded-xl text-white outline-none focus:border-[#00E5FF] transition font-mono"
             />
           </div>
           <div>
-            <label className="text-xs text-gray-400 block mb-1">Milestone Tag</label>
+            <label className="text-[11px] font-bold text-gray-400 block mb-1">Milestone Tag</label>
             <select
               value={tag}
               onChange={(e) => setTag(e.target.value)}
-              className="w-full bg-[#0A0E17] border border-gray-700 text-xs p-2.5 rounded-xl text-white outline-none focus:border-[#00E5FF]"
+              className="w-full bg-[#0A0E17]/80 border border-white/10 text-xs p-3 rounded-xl text-white outline-none focus:border-[#00E5FF] transition"
             >
               <option value="checkin">Weekly Check-in</option>
               <option value="before">Baseline (Before)</option>
@@ -902,22 +906,22 @@ function TransformationVaultView({ currentUser, profile }) {
             </select>
           </div>
           <div>
-            <label className="text-xs text-gray-400 block mb-1">Caption / Notes</label>
+            <label className="text-[11px] font-bold text-gray-400 block mb-1">Caption / Context</label>
             <input
               type="text"
               value={caption}
               onChange={(e) => setCaption(e.target.value)}
               placeholder="e.g. Post leg day, empty stomach"
-              className="w-full bg-[#0A0E17] border border-gray-700 text-xs p-2.5 rounded-xl text-white outline-none focus:border-[#00E5FF]"
+              className="w-full bg-[#0A0E17]/80 border border-white/10 text-xs p-3 rounded-xl text-white outline-none focus:border-[#00E5FF] transition"
             />
           </div>
         </div>
 
         <div className="pt-2">
-          <label className="flex flex-col items-center justify-center border-2 border-dashed border-gray-700 hover:border-[#00E5FF] p-6 rounded-2xl cursor-pointer bg-[#0A0E17] transition group">
-            <span className="text-2xl group-hover:scale-110 transition">📷</span>
-            <span className="text-xs font-bold text-gray-300 mt-2">
-              {uploading ? 'Compressing & Syncing to Vault...' : 'Select or Capture Check-in Photo'}
+          <label className="flex flex-col items-center justify-center border-2 border-dashed border-white/15 hover:border-[#00E5FF] p-6 rounded-2xl cursor-pointer bg-[#0A0E17]/50 transition group">
+            <span className="text-3xl group-hover:scale-110 transition">📷</span>
+            <span className="text-xs font-bold text-gray-200 mt-2">
+              {uploading ? 'Encrypting & Syncing...' : 'Upload Physique Snapshot'}
             </span>
             <span className="text-[10px] text-gray-500 mt-0.5">JPEG, PNG, WebP up to 10MB</span>
             <input
@@ -931,36 +935,36 @@ function TransformationVaultView({ currentUser, profile }) {
         </div>
       </div>
 
-      <div className="bg-[#121824] border border-[#1E293B] p-6 rounded-2xl space-y-4">
-        <h3 className="font-bold text-base flex items-center gap-2">📑 Check-in Gallery Timeline</h3>
+      <div className="rounded-3xl p-6 border border-white/10 bg-[#121824]/60 backdrop-blur-xl shadow-xl space-y-4">
+        <h3 className="font-black text-base text-white">📑 Timeline Gallery</h3>
         {photos.length === 0 ? (
           <p className="text-xs text-gray-500 py-6 text-center">
-            No transformation photos uploaded yet. Snap your first check-in above to start your visual streak!
+            No check-in photos recorded yet. Upload your first milestone photo above!
           </p>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
             {photos.map((p) => (
-              <div key={p.id} className="bg-[#0A0E17] border border-gray-800 rounded-xl overflow-hidden flex flex-col justify-between group">
+              <div key={p.id} className="bg-[#0A0E17] border border-white/10 rounded-2xl overflow-hidden flex flex-col justify-between group shadow-lg">
                 <div className="relative aspect-[3/4] bg-black">
                   <img src={p.photo_url} alt={p.caption} className="w-full h-full object-cover" />
-                  <span className="absolute top-2 left-2 text-[10px] uppercase font-black bg-black/80 px-2 py-0.5 rounded border border-gray-700 text-gray-200">
+                  <span className="absolute top-2 left-2 text-[9px] uppercase font-black bg-black/80 px-2 py-0.5 rounded border border-white/10 text-gray-200 backdrop-blur-sm">
                     {p.tag}
                   </span>
                   <button
                     onClick={() => handleDelete(p.id)}
-                    className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 bg-rose-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs transition"
+                    className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 bg-rose-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs transition active:scale-95"
                     title="Delete photo"
                   >
                     ✕
                   </button>
                 </div>
                 <div className="p-3 space-y-1">
-                  <div className="flex justify-between items-center text-xs">
-                    <span className="font-bold text-white">{p.weight ? `${p.weight} kg` : 'Weight unlogged'}</span>
-                    {p.body_fat && <span className="text-[#00E5FF] font-semibold">{p.body_fat}% BF</span>}
+                  <div className="flex justify-between items-center text-xs font-mono">
+                    <span className="font-bold text-white">{p.weight ? `${p.weight} kg` : '--'}</span>
+                    {p.body_fat && <span className="text-[#00E5FF] font-black">{p.body_fat}% BF</span>}
                   </div>
                   <p className="text-[10px] text-gray-400 truncate">{p.caption || 'No notes'}</p>
-                  <span className="text-[9px] text-gray-600 block">{new Date(p.created_at).toLocaleDateString()}</span>
+                  <span className="text-[9px] text-gray-600 block font-mono">{new Date(p.created_at).toLocaleDateString()}</span>
                 </div>
               </div>
             ))}
@@ -974,7 +978,7 @@ function TransformationVaultView({ currentUser, profile }) {
 function PlateCalculatorModal({ onClose }) {
   const [calcWeight, setCalcWeight] = useState(60);
   const [calcReps, setCalcReps] = useState(8);
-  const [barWeight, setBarWeight] = useState(20);
+  const [barWeight] = useState(20);
 
   const oneRepMax = Math.round(calcWeight * (1 + calcReps / 30));
 
@@ -997,10 +1001,10 @@ function PlateCalculatorModal({ onClose }) {
   const platesPerSide = calculatePlates(calcWeight);
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-[#121824] border border-[#1E293B] p-6 rounded-2xl shadow-2xl space-y-5 text-white">
-        <div className="flex justify-between items-center border-b border-gray-800 pb-3">
-          <h3 className="text-base font-bold text-[#00E5FF] flex items-center gap-2">
+    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+      <div className="w-full max-w-md bg-[#121824]/95 border border-[#00E5FF]/40 p-6 rounded-3xl shadow-[0_0_50px_rgba(0,229,255,0.2)] space-y-5 text-white">
+        <div className="flex justify-between items-center border-b border-white/10 pb-3">
+          <h3 className="text-base font-black text-[#00E5FF] flex items-center gap-2">
             🧮 1RM & Barbell Plate Breakdown
           </h3>
           <button onClick={onClose} className="text-gray-400 hover:text-white">✕</button>
@@ -1008,50 +1012,50 @@ function PlateCalculatorModal({ onClose }) {
 
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="text-xs text-gray-400 block mb-1">Lifted Weight (kg)</label>
+            <label className="text-[11px] font-bold text-gray-400 block mb-1">Lifted Weight (kg)</label>
             <input 
               type="number" 
               value={calcWeight} 
               onChange={e => setCalcWeight(Math.max(0, Number(e.target.value)))}
-              className="w-full bg-[#0A0E17] border border-gray-700 rounded-xl p-2.5 text-sm text-white outline-none focus:border-[#00E5FF]"
+              className="w-full bg-[#0A0E17] border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-[#00E5FF] font-mono"
             />
           </div>
           <div>
-            <label className="text-xs text-gray-400 block mb-1">Reps Performed</label>
+            <label className="text-[11px] font-bold text-gray-400 block mb-1">Reps Done</label>
             <input 
               type="number" 
               value={calcReps} 
               onChange={e => setCalcReps(Math.max(1, Number(e.target.value)))}
-              className="w-full bg-[#0A0E17] border border-gray-700 rounded-xl p-2.5 text-sm text-white outline-none focus:border-[#00E5FF]"
+              className="w-full bg-[#0A0E17] border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-[#00E5FF] font-mono"
             />
           </div>
         </div>
 
-        <div className="bg-[#0A0E17] border border-gray-800 p-4 rounded-xl flex justify-between items-center">
+        <div className="bg-[#0A0E17] border border-white/5 p-4 rounded-2xl flex justify-between items-center">
           <div>
-            <span className="text-[10px] uppercase font-bold text-gray-400 block">Estimated 1-Rep Max</span>
-            <span className="text-2xl font-black text-emerald-400">{oneRepMax} kg</span>
+            <span className="text-[9px] uppercase font-bold text-gray-400 block tracking-wider">Estimated 1RM</span>
+            <span className="text-2xl font-black font-mono text-emerald-400 drop-shadow-[0_0_10px_rgba(52,211,153,0.3)]">{oneRepMax} kg</span>
           </div>
           <div className="text-right">
-            <span className="text-[10px] uppercase font-bold text-gray-400 block">Bar Weight</span>
-            <span className="text-sm font-bold text-white">{barWeight} kg (Olympic)</span>
+            <span className="text-[9px] uppercase font-bold text-gray-400 block tracking-wider">Barbell Bar</span>
+            <span className="text-xs font-bold text-white font-mono">{barWeight} kg (Olympic)</span>
           </div>
         </div>
 
         <div className="space-y-2">
           <span className="text-xs font-bold text-gray-300 block">
-            Plates to load <span className="text-[#00E5FF]">PER SIDE</span> (for {calcWeight}kg):
+            Plates to rack <span className="text-[#00E5FF]">PER SIDE</span>:
           </span>
           {platesPerSide.length === 0 ? (
-            <p className="text-xs text-gray-500 italic bg-[#0A0E17] p-3 rounded-xl">
-              Target weight is equal to or less than the empty barbell.
+            <p className="text-xs text-gray-500 italic bg-[#0A0E17] p-3 rounded-xl border border-white/5">
+              Weight is equal to or less than the empty barbell.
             </p>
           ) : (
             <div className="flex flex-wrap gap-2">
               {platesPerSide.map((p, idx) => (
                 <span 
                   key={idx}
-                  className="bg-[#00E5FF]/10 text-[#00E5FF] border border-[#00E5FF]/30 font-black text-xs px-3 py-1.5 rounded-lg flex items-center gap-1 shadow-sm"
+                  className="bg-[#00E5FF]/10 text-[#00E5FF] border border-[#00E5FF]/30 font-black font-mono text-xs px-3 py-1.5 rounded-xl flex items-center gap-1 shadow-sm"
                 >
                   ⚪ {p} kg
                 </span>
@@ -1063,7 +1067,7 @@ function PlateCalculatorModal({ onClose }) {
         <button 
           type="button" 
           onClick={onClose}
-          className="w-full bg-[#1E293B] hover:bg-gray-800 text-white font-bold py-2.5 rounded-xl text-xs transition"
+          className="w-full bg-white/10 hover:bg-white/15 text-white font-black py-3 rounded-xl text-xs uppercase tracking-wider transition"
         >
           Close Calculator
         </button>
@@ -1100,11 +1104,11 @@ function FloatingRestTimer({ initialSeconds, onCancel }) {
   const progressPercent = totalTime > 0 ? ((totalTime - timeLeft) / totalTime) * 100 : 100;
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 bg-[#121824]/95 backdrop-blur-md border-2 border-[#00E5FF] p-4 rounded-2xl shadow-[0_0_25px_rgba(0,229,255,0.35)] flex items-center gap-4 text-white">
+    <div className="fixed bottom-24 right-6 z-50 bg-[#121824]/95 backdrop-blur-xl border-2 border-[#00E5FF] p-4 rounded-3xl shadow-[0_0_35px_rgba(0,229,255,0.4)] flex items-center gap-4 text-white">
       <div className="relative w-14 h-14 flex items-center justify-center">
         <svg className="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
           <path
-            className="text-gray-800"
+            className="text-white/10"
             strokeWidth="3"
             stroke="currentColor"
             fill="none"
@@ -1120,7 +1124,7 @@ function FloatingRestTimer({ initialSeconds, onCancel }) {
             d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
           />
         </svg>
-        <span className="absolute text-sm font-black tracking-tighter">
+        <span className="absolute text-sm font-black font-mono tracking-tighter">
           {timeLeft > 0 ? `${timeLeft}s` : '🔥'}
         </span>
       </div>
@@ -1128,18 +1132,18 @@ function FloatingRestTimer({ initialSeconds, onCancel }) {
       <div className="space-y-1">
         <div className="flex items-center justify-between gap-3">
           <span className="text-xs font-black uppercase text-[#00E5FF] tracking-wider">
-            {timeLeft > 0 ? 'Resting...' : 'Ready for Next Set!'}
+            {timeLeft > 0 ? 'Resting...' : 'Set Ready!'}
           </span>
           <button onClick={onCancel} className="text-xs text-gray-400 hover:text-white">✕</button>
         </div>
         <div className="flex gap-1.5 pt-0.5">
-          <button onClick={() => addTime(30)} className="text-[10px] bg-[#0A0E17] hover:bg-gray-800 px-2 py-1 rounded border border-gray-700 font-bold">
+          <button onClick={() => addTime(30)} className="text-[10px] bg-[#0A0E17] hover:bg-white/10 px-2 py-1 rounded-md border border-white/10 font-bold">
             +30s
           </button>
-          <button onClick={() => addTime(60)} className="text-[10px] bg-[#0A0E17] hover:bg-gray-800 px-2 py-1 rounded border border-gray-700 font-bold">
+          <button onClick={() => addTime(60)} className="text-[10px] bg-[#0A0E17] hover:bg-white/10 px-2 py-1 rounded-md border border-white/10 font-bold">
             +60s
           </button>
-          <button onClick={() => setTimeLeft(0)} className="text-[10px] bg-rose-500/20 text-rose-400 hover:bg-rose-500/30 px-2 py-1 rounded border border-rose-500/40 font-bold">
+          <button onClick={() => setTimeLeft(0)} className="text-[10px] bg-rose-500/20 text-rose-400 hover:bg-rose-500/30 px-2 py-1 rounded-md border border-rose-500/40 font-bold">
             Skip
           </button>
         </div>
@@ -1153,18 +1157,18 @@ function ConsistencyMatrix({ waterGlasses, completedWorkoutsCount }) {
   const todayIndex = (new Date().getDay() + 6) % 7;
 
   return (
-    <div className="bg-[#121824] border border-[#1E293B] p-5 rounded-2xl space-y-3">
+    <div className="rounded-3xl p-6 border border-white/10 bg-[#121824]/60 backdrop-blur-xl shadow-xl space-y-3">
       <div className="flex justify-between items-center">
         <div>
-          <h3 className="text-sm font-bold flex items-center gap-1.5">⚡ 7-Day Habit & Consistency Matrix</h3>
-          <p className="text-[11px] text-gray-400">Streak tracker based on hydration adherence and session activity.</p>
+          <h3 className="text-sm font-black flex items-center gap-1.5 text-white">⚡ 7-Day Consistency Matrix</h3>
+          <p className="text-[11px] text-gray-400">Tracking daily workout volume and fluid hydration adherence</p>
         </div>
-        <span className="text-xs font-black bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-2.5 py-1 rounded-lg">
-          {waterGlasses >= 8 ? '🔥 100% Hydrated' : '📈 Daily In-Progress'}
+        <span className="text-[10px] font-black uppercase tracking-wider bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-3 py-1 rounded-full shadow-[0_0_12px_rgba(16,185,129,0.2)]">
+          {waterGlasses >= 8 ? '🔥 Streak Active' : '📈 Daily Progress'}
         </span>
       </div>
 
-      <div className="grid grid-cols-7 gap-2 pt-1">
+      <div className="grid grid-cols-7 gap-2 pt-2">
         {days.map((day, idx) => {
           const isToday = idx === todayIndex;
           const isPast = idx < todayIndex;
@@ -1173,16 +1177,16 @@ function ConsistencyMatrix({ waterGlasses, completedWorkoutsCount }) {
           return (
             <div
               key={day}
-              className={`p-2.5 rounded-xl border text-center transition ${
+              className={`p-3 rounded-2xl border text-center transition-all ${
                 isToday 
-                  ? 'border-[#00E5FF] bg-[#00E5FF]/10 shadow-[0_0_10px_rgba(0,229,255,0.2)]'
+                  ? 'border-[#00E5FF] bg-[#00E5FF]/10 shadow-[0_0_20px_rgba(0,229,255,0.25)]'
                   : isPast
-                  ? 'border-gray-800 bg-[#0A0E17] text-gray-400'
-                  : 'border-gray-800/40 bg-[#0A0E17]/50 text-gray-600'
+                  ? 'border-white/5 bg-[#0A0E17]/60 text-gray-400'
+                  : 'border-white/5 bg-[#0A0E17]/30 text-gray-600'
               }`}
             >
-              <span className="text-[10px] font-bold block uppercase">{day}</span>
-              <span className="text-sm mt-1 block">
+              <span className="text-[9px] font-black block uppercase tracking-wider">{day}</span>
+              <span className="text-base mt-1 block">
                 {isToday ? (isLogged ? '💪' : '⚡') : isPast ? '✓' : '•'}
               </span>
             </div>
@@ -1199,7 +1203,6 @@ function ConsultationView({ currentUser, profile, selectedConditions, biomarkers
   const [selectedTime, setSelectedTime] = useState(TIME_SLOTS[0]);
   const [bookingLoading, setBookingLoading] = useState(false);
   const [myBookings, setMyBookings] = useState([]);
-  const [statusMsg, setStatusMsg] = useState('');
 
   const loadBookings = async () => {
     if (!currentUser?.id) return;
@@ -1228,8 +1231,6 @@ function ConsultationView({ currentUser, profile, selectedConditions, biomarkers
     }
 
     setBookingLoading(true);
-    setStatusMsg('');
-
     try {
       const payload = {
         user_id: currentUser?.id,
@@ -1239,27 +1240,19 @@ function ConsultationView({ currentUser, profile, selectedConditions, biomarkers
         specialty: selectedExpert.role,
         appointment_date: bookingDate,
         slot_time: selectedTime,
-        notes: `Clinical Profile: Diet - ${profile?.diet_pref || 'Veg'}, BMI ${((profile?.weight || 70) / ((profile?.height || 170) / 100) ** 2).toFixed(1)}, Sugar: ${biomarkers?.fastingSugar || 'Not logged'}`,
+        notes: `Clinical: Diet - ${profile?.diet_pref || 'Veg'}, BMI ${((profile?.weight || 70) / ((profile?.height || 170) / 100) ** 2).toFixed(1)}, Sugar: ${biomarkers?.fastingSugar || 'Not logged'}`,
         status: 'Paid & Confirmed'
       };
 
-      const { error } = await supabase
-        .from('consultations')
-        .insert([payload])
-        .select();
+      const { error } = await supabase.from('consultations').insert([payload]);
+      if (error) throw error;
 
-      if (error) {
-        alert(`Booking Error: ${error.message}`);
-        setStatusMsg(`Failed: ${error.message}`);
-      } else {
-        alert(`Booking Confirmed Successfully with ${selectedExpert.name}! 🎉`);
-        setStatusMsg(`Appointment confirmed with ${selectedExpert.name}!`);
-        setSelectedExpert(null);
-        setBookingDate('');
-        loadBookings();
-      }
+      alert(`Session Booked with ${selectedExpert.name}! 🎉`);
+      setSelectedExpert(null);
+      setBookingDate('');
+      loadBookings();
     } catch (err) {
-      alert(`Runtime Exception: ${err.message}`);
+      alert(`Booking Error: ${err.message}`);
     } finally {
       setBookingLoading(false);
     }
@@ -1267,25 +1260,21 @@ function ConsultationView({ currentUser, profile, selectedConditions, biomarkers
 
   return (
     <div className="w-full space-y-6">
-      <div className="bg-[#121824] border border-[#1E293B] p-6 rounded-2xl flex flex-col md:flex-row justify-between md:items-center gap-4">
+      <div className="relative overflow-hidden rounded-3xl p-6 md:p-8 border border-white/10 bg-gradient-to-r from-[#121824]/90 via-[#0A0E17]/80 to-[#121824]/90 backdrop-blur-xl shadow-xl flex flex-col md:flex-row justify-between md:items-center gap-4">
         <div>
-          <span className="text-xs font-bold uppercase tracking-widest text-[#00E5FF]">Clinical Tele-Health</span>
-          <h2 className="text-2xl font-black mt-1">Book 1-on-1 Specialist Consultation</h2>
+          <span className="text-[10px] font-black uppercase tracking-[0.25em] text-[#00E5FF] px-2.5 py-1 rounded-full bg-[#00E5FF]/10 border border-[#00E5FF]/30 inline-block mb-2">
+            Tele-Health Suite
+          </span>
+          <h2 className="text-3xl font-black tracking-tight text-white">Clinical Expert Consultations</h2>
           <p className="text-xs text-gray-400 mt-1 max-w-lg">
-            Consult doctors & rehabilitation specialists certified under the Disha Health Clinical Model.
+            Certified metabolic and biomechanical specialists aligned under the Disha Clinical Protocol.
           </p>
         </div>
-        <div className="bg-[#0A0E17] border border-gray-800 px-4 py-3 rounded-xl text-center">
-          <span className="text-xs text-gray-500 block uppercase font-bold">Active Bookings</span>
-          <span className="text-2xl font-black text-[#00E5FF]">{myBookings.length}</span>
+        <div className="bg-[#0A0E17]/80 border border-white/10 px-5 py-3 rounded-2xl text-center shadow-inner">
+          <span className="text-[10px] text-gray-400 block uppercase font-bold tracking-wider">Active Slots</span>
+          <span className="text-2xl font-black font-mono text-[#00E5FF]">{myBookings.length}</span>
         </div>
       </div>
-
-      {statusMsg && (
-        <div className="bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 p-4 rounded-xl text-xs font-semibold">
-          {statusMsg}
-        </div>
-      )}
 
       <div className="grid md:grid-cols-3 gap-4">
         {EXPERTS.map((exp) => {
@@ -1293,31 +1282,33 @@ function ConsultationView({ currentUser, profile, selectedConditions, biomarkers
           return (
             <div
               key={exp.id}
-              className={`p-5 rounded-2xl border transition flex flex-col justify-between ${
-                isChosen ? 'bg-[#00E5FF]/10 border-[#00E5FF]' : 'bg-[#121824] border-[#1E293B] hover:border-gray-700'
+              className={`p-6 rounded-3xl border transition-all duration-300 flex flex-col justify-between ${
+                isChosen
+                  ? 'bg-[#00E5FF]/15 border-[#00E5FF] shadow-[0_0_30px_rgba(0,229,255,0.25)] backdrop-blur-md'
+                  : 'bg-[#121824]/60 border-white/10 hover:border-white/20 backdrop-blur-md'
               }`}
             >
               <div>
-                <div className="flex justify-between items-start mb-2">
-                  <span className="text-[10px] font-bold uppercase tracking-wider bg-gray-800 text-[#00E5FF] px-2 py-0.5 rounded border border-gray-700">
+                <div className="flex justify-between items-start mb-3">
+                  <span className="text-[9px] font-black uppercase tracking-wider bg-white/5 text-[#00E5FF] px-2.5 py-1 rounded-full border border-white/10">
                     {exp.badge}
                   </span>
-                  <span className="text-xs font-bold text-amber-400">{exp.rating}</span>
+                  <span className="text-xs font-black text-amber-400">{exp.rating}</span>
                 </div>
-                <h3 className="font-bold text-base text-white">{exp.name}</h3>
-                <p className="text-xs text-[#00E5FF] mt-0.5 font-semibold">{exp.role}</p>
-                <p className="text-xs text-gray-400 mt-2 leading-relaxed">{exp.focus}</p>
+                <h3 className="font-black text-lg text-white">{exp.name}</h3>
+                <p className="text-xs text-[#00E5FF] mt-0.5 font-bold">{exp.role}</p>
+                <p className="text-xs text-gray-400 mt-3 leading-relaxed">{exp.focus}</p>
               </div>
 
-              <div className="mt-5 pt-4 border-t border-gray-800/80 flex items-center justify-between">
+              <div className="mt-6 pt-4 border-t border-white/5 flex items-center justify-between">
                 <div>
-                  <span className="text-[10px] uppercase text-gray-500 block">Session Fee</span>
-                  <span className="text-lg font-black text-white">{exp.fee}</span>
+                  <span className="text-[9px] uppercase tracking-wider text-gray-500 block font-bold">Session Fee</span>
+                  <span className="text-xl font-black font-mono text-white">{exp.fee}</span>
                 </div>
                 <button
                   type="button"
                   onClick={() => setSelectedExpert(isChosen ? null : exp)}
-                  className={`text-xs px-4 py-2 rounded-xl font-bold transition ${
+                  className={`text-xs px-4 py-2.5 rounded-xl font-black uppercase tracking-wider transition active:scale-95 ${
                     isChosen ? 'bg-rose-500 text-white' : 'bg-[#00E5FF] text-black hover:bg-[#00B4D8]'
                   }`}
                 >
@@ -1330,31 +1321,31 @@ function ConsultationView({ currentUser, profile, selectedConditions, biomarkers
       </div>
 
       {selectedExpert && (
-        <form onSubmit={handleBooking} className="bg-[#121824] border border-[#00E5FF]/50 p-6 rounded-2xl space-y-4 shadow-2xl">
-          <div className="flex justify-between items-center border-b border-gray-800 pb-3">
-            <h3 className="text-base font-bold text-white flex items-center gap-2">
-              📅 Pay & Schedule with <span className="text-[#00E5FF]">{selectedExpert.name}</span>
+        <form onSubmit={handleBooking} className="rounded-3xl border border-[#00E5FF]/50 bg-[#121824]/90 backdrop-blur-xl p-6 md:p-8 space-y-4 shadow-[0_0_50px_rgba(0,229,255,0.15)]">
+          <div className="flex justify-between items-center border-b border-white/10 pb-3">
+            <h3 className="text-base font-black text-white flex items-center gap-2">
+              📅 Confirm Slot with <span className="text-[#00E5FF]">{selectedExpert.name}</span>
             </h3>
             <button type="button" onClick={() => setSelectedExpert(null)} className="text-gray-400 hover:text-white">✕</button>
           </div>
 
           <div className="grid md:grid-cols-2 gap-4">
             <div>
-              <label className="text-xs text-gray-400 block mb-1">Select Consultation Date</label>
+              <label className="text-[11px] font-bold text-gray-400 block mb-1">Select Consultation Date</label>
               <input
                 type="date"
                 required
                 value={bookingDate}
                 onChange={(e) => setBookingDate(e.target.value)}
-                className="w-full bg-[#0A0E17] border border-gray-700 rounded-xl p-2.5 text-sm text-white outline-none focus:border-[#00E5FF]"
+                className="w-full bg-[#0A0E17] border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-[#00E5FF] font-mono"
               />
             </div>
             <div>
-              <label className="text-xs text-gray-400 block mb-1">Select Available Time Slot</label>
+              <label className="text-[11px] font-bold text-gray-400 block mb-1">Select Available Time</label>
               <select
                 value={selectedTime}
                 onChange={(e) => setSelectedTime(e.target.value)}
-                className="w-full bg-[#0A0E17] border border-gray-700 rounded-xl p-2.5 text-sm text-white outline-none focus:border-[#00E5FF]"
+                className="w-full bg-[#0A0E17] border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-[#00E5FF]"
               >
                 {TIME_SLOTS.map((slot) => (
                   <option key={slot} value={slot}>{slot}</option>
@@ -1366,29 +1357,29 @@ function ConsultationView({ currentUser, profile, selectedConditions, biomarkers
           <button
             type="submit"
             disabled={bookingLoading}
-            className="w-full bg-[#00E5FF] hover:bg-[#00B4D8] text-black font-black py-3 rounded-xl text-sm transition shadow-lg shadow-[#00E5FF]/20 flex items-center justify-center gap-2"
+            className="w-full bg-gradient-to-r from-[#00E5FF] to-[#00B4D8] text-black font-black py-3.5 rounded-xl text-xs uppercase tracking-wider transition active:scale-95 shadow-[0_0_25px_rgba(0,229,255,0.35)]"
           >
-            💳 {bookingLoading ? 'Processing Telemetry & Booking...' : `Proceed to Pay & Confirm (${selectedExpert.fee})`}
+            💳 {bookingLoading ? 'Securing Telemetry Slot...' : `Pay & Lock Slot (${selectedExpert.fee})`}
           </button>
         </form>
       )}
 
-      <div className="bg-[#121824] border border-[#1E293B] p-6 rounded-2xl space-y-4">
-        <h3 className="font-bold text-lg flex items-center gap-2">📑 Your Consultation History</h3>
+      <div className="rounded-3xl p-6 border border-white/10 bg-[#121824]/60 backdrop-blur-xl shadow-xl space-y-4">
+        <h3 className="font-black text-base text-white">📑 Appointment History</h3>
         {myBookings.length === 0 ? (
           <p className="text-xs text-gray-500 py-4 text-center">No consultations booked yet.</p>
         ) : (
           <div className="grid md:grid-cols-2 gap-3">
             {myBookings.map((b) => (
-              <div key={b.id} className="bg-[#0A0E17] border border-gray-800 p-4 rounded-xl flex justify-between items-center">
+              <div key={b.id} className="bg-[#0A0E17]/80 border border-white/10 p-4 rounded-2xl flex justify-between items-center shadow-inner">
                 <div>
-                  <h4 className="font-bold text-sm text-white">{b.doctor_name || b.expert_name}</h4>
+                  <h4 className="font-black text-sm text-white">{b.doctor_name || b.expert_name}</h4>
                   <p className="text-xs text-gray-400 mt-0.5">{b.specialty}</p>
-                  <span className="text-[11px] text-[#00E5FF] block mt-2 font-semibold">
+                  <span className="text-[11px] text-[#00E5FF] block mt-2 font-mono font-bold">
                     📅 {b.appointment_date} at {b.slot_time}
                   </span>
                 </div>
-                <span className="text-[10px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-400 px-2.5 py-1 rounded-full border border-emerald-500/30">
+                <span className="text-[9px] font-black uppercase tracking-wider bg-emerald-500/15 text-emerald-400 px-3 py-1 rounded-full border border-emerald-500/30">
                   {b.status}
                 </span>
               </div>
@@ -1406,24 +1397,17 @@ function AuthModal({ onAuthSuccess }) {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
-  const [infoMsg, setInfoMsg] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setErrorMsg('');
-    setInfoMsg('');
 
     try {
       if (isSignUp) {
         const { data, error } = await supabase.auth.signUp({ email, password });
         if (error) throw error;
-        if (data?.user?.identities?.length === 0) {
-          setErrorMsg('An account with this email already exists.');
-        } else {
-          setInfoMsg('Account created! Logging you in...');
-          if (data?.session) onAuthSuccess(data.session.user);
-        }
+        if (data?.session) onAuthSuccess(data.session.user);
       } else {
         const { data, error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
@@ -1437,33 +1421,32 @@ function AuthModal({ onAuthSuccess }) {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-[#0A0E17]">
-      <div className="w-full max-w-md bg-[#121824] border border-[#1E293B] p-8 rounded-2xl shadow-2xl space-y-6 text-white">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-[#0A0E17] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#00E5FF]/10 via-[#0A0E17] to-black">
+      <div className="w-full max-w-md bg-[#121824]/90 border border-white/10 p-8 rounded-3xl shadow-[0_0_60px_rgba(0,229,255,0.15)] backdrop-blur-2xl space-y-6 text-white">
         <div className="text-center space-y-2">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-[#00E5FF]/10 text-[#00E5FF] text-2xl mb-1">🔥</div>
-          <h2 className="text-2xl font-black tracking-wider text-[#00E5FF]">GYM F.R.E.A.K</h2>
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-[#00E5FF]/10 text-[#00E5FF] text-3xl border border-[#00E5FF]/30 shadow-[0_0_20px_rgba(0,229,255,0.2)] mb-2">🔥</div>
+          <h2 className="text-3xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-white via-white to-[#00E5FF]">GYM F.R.E.A.K</h2>
           <p className="text-xs text-gray-400">
-            {isSignUp ? 'Create your clinical fitness profile' : 'Sign in to sync your routines and health biomarkers'}
+            {isSignUp ? 'Initialize your clinical biometric profile' : 'Sign in to access synchronized workouts & telemetry'}
           </p>
         </div>
 
-        {errorMsg && <div className="bg-rose-500/10 border border-rose-500/30 text-rose-400 p-3 rounded-xl text-xs">{errorMsg}</div>}
-        {infoMsg && <div className="bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 p-3 rounded-xl text-xs">{infoMsg}</div>}
+        {errorMsg && <div className="bg-rose-500/10 border border-rose-500/30 text-rose-400 p-3.5 rounded-2xl text-xs">{errorMsg}</div>}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="text-xs text-gray-400 block mb-1">Email Address</label>
+            <label className="text-[11px] font-bold text-gray-400 block mb-1">Email Address</label>
             <input 
               type="email" 
               required
               value={email}
               onChange={e => setEmail(e.target.value)}
-              placeholder="you@domain.com"
-              className="w-full bg-[#0A0E17] border border-gray-700 rounded-xl p-3 text-sm text-white outline-none focus:border-[#00E5FF] transition"
+              placeholder="athlete@domain.com"
+              className="w-full bg-[#0A0E17] border border-white/10 rounded-2xl p-3.5 text-sm text-white outline-none focus:border-[#00E5FF] transition"
             />
           </div>
           <div>
-            <label className="text-xs text-gray-400 block mb-1">Password</label>
+            <label className="text-[11px] font-bold text-gray-400 block mb-1">Password</label>
             <input 
               type="password" 
               required
@@ -1471,26 +1454,26 @@ function AuthModal({ onAuthSuccess }) {
               value={password}
               onChange={e => setPassword(e.target.value)}
               placeholder="••••••••"
-              className="w-full bg-[#0A0E17] border border-gray-700 rounded-xl p-3 text-sm text-white outline-none focus:border-[#00E5FF] transition"
+              className="w-full bg-[#0A0E17] border border-white/10 rounded-2xl p-3.5 text-sm text-white outline-none focus:border-[#00E5FF] transition"
             />
           </div>
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-[#00E5FF] hover:bg-[#00B4D8] text-black font-black py-3 rounded-xl transition text-sm shadow-lg shadow-[#00E5FF]/20 disabled:opacity-50 mt-2"
+            className="w-full bg-gradient-to-r from-[#00E5FF] to-[#00B4D8] text-black font-black py-3.5 rounded-2xl transition uppercase tracking-wider text-xs shadow-[0_0_25px_rgba(0,229,255,0.3)] active:scale-95 disabled:opacity-50 mt-2"
           >
-            {loading ? 'Processing...' : isSignUp ? 'Create Account' : 'Sign In'}
+            {loading ? 'Authenticating...' : isSignUp ? 'Create Profile' : 'Access Terminal'}
           </button>
         </form>
 
-        <div className="text-center pt-2 border-t border-gray-800 text-xs text-gray-400">
-          {isSignUp ? 'Already have an account?' : "Don't have an account yet?"}{' '}
+        <div className="text-center pt-2 border-t border-white/5 text-xs text-gray-400">
+          {isSignUp ? 'Already registered?' : 'New athlete?'}{' '}
           <button 
             type="button"
-            onClick={() => { setIsSignUp(!isSignUp); setErrorMsg(''); setInfoMsg(''); }}
+            onClick={() => { setIsSignUp(!isSignUp); setErrorMsg(''); }}
             className="text-[#00E5FF] font-bold hover:underline ml-1"
           >
-            {isSignUp ? 'Sign In' : 'Sign Up'}
+            {isSignUp ? 'Sign In' : 'Create Account'}
           </button>
         </div>
       </div>
@@ -1514,14 +1497,14 @@ function ExerciseRow({ exerciseName, onLogSet, onStartRest, history = [] }) {
   const isAdapted = exerciseName.includes('⚠️');
 
   return (
-    <div className={`bg-[#0A0E17] border rounded-xl p-3 space-y-2 transition ${isAdapted ? 'border-amber-400/40 bg-amber-400/5' : 'border-gray-800'}`}>
+    <div className={`p-4 rounded-2xl border transition-all ${isAdapted ? 'border-amber-400/40 bg-amber-400/5' : 'border-white/5 bg-[#0A0E17]/60'} space-y-2.5 shadow-sm`}>
       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-1">
-        <span className={`text-xs font-semibold ${isAdapted ? 'text-amber-300' : 'text-gray-200'}`}>
+        <span className={`text-xs font-black ${isAdapted ? 'text-amber-300' : 'text-gray-200'}`}>
           {exerciseName}
         </span>
         {lastSet && (
-          <span className="text-[10px] text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20 self-start sm:self-auto">
-            Best PR: {lastSet.weight}kg × {lastSet.reps} reps
+          <span className="text-[10px] text-emerald-400 font-mono font-bold bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20 self-start sm:self-auto shadow-[0_0_10px_rgba(52,211,153,0.15)]">
+            PR: {lastSet.weight}kg × {lastSet.reps}
           </span>
         )}
       </div>
@@ -1532,27 +1515,26 @@ function ExerciseRow({ exerciseName, onLogSet, onStartRest, history = [] }) {
           placeholder="Weight (kg)" 
           value={weight}
           onChange={(e) => setWeight(e.target.value)}
-          className="w-24 bg-[#121824] border border-gray-700 text-xs px-2.5 py-1.5 rounded-lg text-white outline-none focus:border-[#00E5FF]"
+          className="w-28 bg-[#121824] border border-white/10 text-xs px-3 py-2 rounded-xl text-white outline-none focus:border-[#00E5FF] font-mono"
         />
         <input 
           type="number" 
           placeholder="Reps" 
           value={reps}
           onChange={(e) => setReps(e.target.value)}
-          className="w-20 bg-[#121824] border border-gray-700 text-xs px-2.5 py-1.5 rounded-lg text-white outline-none focus:border-[#00E5FF]"
+          className="w-20 bg-[#121824] border border-white/10 text-xs px-3 py-2 rounded-xl text-white outline-none focus:border-[#00E5FF] font-mono"
         />
         <button 
           type="button" 
           onClick={submitSet}
-          className="bg-[#00E5FF] hover:bg-[#00B4D8] text-black text-[11px] font-black px-3 py-1.5 rounded-lg transition"
+          className="bg-[#00E5FF] hover:bg-[#00B4D8] text-black text-[11px] font-black px-3.5 py-2 rounded-xl uppercase tracking-wider transition active:scale-95 shadow-[0_0_12px_rgba(0,229,255,0.2)]"
         >
-          + Log Set
+          + Log
         </button>
         <button 
           type="button" 
           onClick={() => onStartRest(90)}
-          className="text-gray-400 hover:text-white text-[11px] bg-[#121824] border border-gray-700 px-2.5 py-1.5 rounded-lg transition"
-          title="Start 90s Rest Timer"
+          className="text-gray-300 hover:text-white text-[11px] bg-white/5 border border-white/10 px-3 py-2 rounded-xl font-bold transition active:scale-95"
         >
           ⏱️ Rest
         </button>
@@ -1561,7 +1543,7 @@ function ExerciseRow({ exerciseName, onLogSet, onStartRest, history = [] }) {
       {history.length > 0 && (
         <div className="flex flex-wrap gap-1.5 pt-1">
           {history.slice(-4).map((item, idx) => (
-            <span key={idx} className="text-[10px] bg-gray-800/80 text-gray-300 px-2 py-0.5 rounded border border-gray-700">
+            <span key={idx} className="text-[9px] font-mono bg-[#121824] text-gray-400 px-2 py-0.5 rounded-md border border-white/5">
               {item.weight}kg × {item.reps} ({item.date})
             </span>
           ))}
@@ -1576,74 +1558,57 @@ function ClinicalDietPanel({ profile, selectedConditions, targetCalories, target
   const targetFats = Math.round(fatCalories / 9);
   const remainingCalories = targetCalories - (targetProtein * 4) - fatCalories;
   const targetCarbs = Math.max(50, Math.round(remainingCalories / 4));
-
   const isPureVeg = profile?.diet_pref === 'veg';
 
   return (
-    <div className="bg-[#121824] border border-[#1E293B] p-6 rounded-2xl space-y-5">
-      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2 border-b border-gray-800 pb-4">
+    <div className="rounded-3xl p-6 border border-white/10 bg-[#121824]/60 backdrop-blur-xl shadow-xl space-y-5">
+      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2 border-b border-white/5 pb-4">
         <div>
-          <h3 className="text-lg font-bold flex items-center gap-2">🥗 Clinical Nutrition & Macro Protocol</h3>
+          <h3 className="text-lg font-black text-white flex items-center gap-2">🥗 Clinical Nutrition Blueprint</h3>
           <p className="text-xs text-gray-400">
             Targeting for: <span className="text-[#00E5FF] font-bold">{isPureVeg ? '🌱 Pure Vegetarian Diet' : profile?.diet_pref === 'egg' ? '🥚 Eggetarian Diet' : '🍗 Non-Vegetarian Diet'}</span>
           </p>
         </div>
-        <span className="text-xs bg-[#00E5FF]/10 text-[#00E5FF] px-3 py-1 rounded-lg border border-[#00E5FF]/30 font-bold self-start sm:self-auto">
+        <span className="text-[10px] font-black uppercase tracking-wider bg-[#00E5FF]/10 text-[#00E5FF] px-3 py-1 rounded-full border border-[#00E5FF]/30">
           {profile.goal.replace('_', ' ').toUpperCase()} TARGET
         </span>
       </div>
 
       <div className="grid grid-cols-3 gap-3">
-        <div className="bg-[#0A0E17] border border-gray-800 p-3.5 rounded-xl text-center">
-          <span className="text-[11px] text-emerald-400 font-bold uppercase block">Protein</span>
-          <span className="text-xl font-black text-white">{targetProtein}g</span>
-          <span className="text-[10px] text-gray-500 block mt-0.5">{targetProtein * 4} kcal</span>
+        <div className="bg-[#0A0E17]/80 border border-white/10 p-4 rounded-2xl text-center shadow-inner">
+          <span className="text-[10px] text-emerald-400 font-bold uppercase tracking-wider block">Protein</span>
+          <span className="text-2xl font-black font-mono text-white mt-1 block">{targetProtein}g</span>
+          <span className="text-[10px] text-gray-500 font-mono">{targetProtein * 4} kcal</span>
         </div>
-        <div className="bg-[#0A0E17] border border-gray-800 p-3.5 rounded-xl text-center">
-          <span className="text-[11px] text-[#00E5FF] font-bold uppercase block">Carbohydrates</span>
-          <span className="text-xl font-black text-white">{targetCarbs}g</span>
-          <span className="text-[10px] text-gray-500 block mt-0.5">{targetCarbs * 4} kcal</span>
+        <div className="bg-[#0A0E17]/80 border border-white/10 p-4 rounded-2xl text-center shadow-inner">
+          <span className="text-[10px] text-[#00E5FF] font-bold uppercase tracking-wider block">Carbs</span>
+          <span className="text-2xl font-black font-mono text-white mt-1 block">{targetCarbs}g</span>
+          <span className="text-[10px] text-gray-500 font-mono">{targetCarbs * 4} kcal</span>
         </div>
-        <div className="bg-[#0A0E17] border border-gray-800 p-3.5 rounded-xl text-center">
-          <span className="text-[11px] text-amber-400 font-bold uppercase block">Healthy Fats</span>
-          <span className="text-xl font-black text-white">{targetFats}g</span>
-          <span className="text-[10px] text-gray-500 block mt-0.5">{targetFats * 9} kcal</span>
+        <div className="bg-[#0A0E17]/80 border border-white/10 p-4 rounded-2xl text-center shadow-inner">
+          <span className="text-[10px] text-amber-400 font-bold uppercase tracking-wider block">Fats</span>
+          <span className="text-2xl font-black font-mono text-white mt-1 block">{targetFats}g</span>
+          <span className="text-[10px] text-gray-500 font-mono">{targetFats * 9} kcal</span>
         </div>
       </div>
 
       <div className="space-y-3 pt-1">
-        <h4 className="text-xs uppercase font-bold text-gray-400 tracking-wider">Clinical Nutrition Guidelines</h4>
         <div className="grid sm:grid-cols-2 gap-3 text-xs">
-          <div className="bg-[#0A0E17] border border-gray-800 p-3 rounded-xl">
-            <span className="font-bold text-emerald-400 block mb-1">Recommended Staples</span>
+          <div className="bg-[#0A0E17]/60 border border-white/5 p-4 rounded-2xl">
+            <span className="font-black text-emerald-400 block mb-1">Recommended Staples</span>
             <p className="text-gray-400 leading-relaxed">
               {isPureVeg
                 ? 'Soya chunks (52% protein), paneer, tofu, yellow & green moong dal, rajma, sattu, roasted chana, chia seeds, oats, and Greek yogurt.'
                 : 'Paneer, boiled whole eggs/egg whites, chicken breast, fish, moong lentils, curd, oats, and seeds.'}
             </p>
           </div>
-          <div className="bg-[#0A0E17] border border-gray-800 p-3 rounded-xl">
-            <span className="font-bold text-rose-400 block mb-1">Items to Minimize</span>
+          <div className="bg-[#0A0E17]/60 border border-white/5 p-4 rounded-2xl">
+            <span className="font-black text-rose-400 block mb-1">Items to Minimize</span>
             <p className="text-gray-400 leading-relaxed">
               Ultra-processed refined flour (maida), excess refined seed oils, added sugar syrups, and packaged deep-fried snacks.
             </p>
           </div>
         </div>
-
-        {selectedConditions.length > 0 && (
-          <div className="bg-amber-400/10 border border-amber-400/30 p-3 rounded-xl text-xs text-amber-300 space-y-1 mt-2">
-            <span className="font-bold block mb-1">⚠️ Active Clinical Nutrition Overrides:</span>
-            {selectedConditions.includes('diabetes') && (
-              <p>• Prioritize low GI grains (oats/millets/sattu) and eat raw cucumber/salad 10 minutes before meals to stabilize insulin.</p>
-            )}
-            {selectedConditions.includes('hypertension') && (
-              <p>• Limit processed sodium below 2,000 mg/day; supplement with potassium-rich coconut water & palak/spinach.</p>
-            )}
-            {selectedConditions.includes('pcod') && (
-              <p>• Avoid refined gluten; include pumpkin seeds & roasted flax seeds for healthy androgen hormone balance.</p>
-            )}
-          </div>
-        )}
       </div>
     </div>
   );
@@ -1661,47 +1626,47 @@ function BiomarkerPanel({ biomarkers, setBiomarkers }) {
   const sugar = parseFloat(biomarkers?.fastingSugar);
 
   return (
-    <div className="bg-[#121824] border border-[#1E293B] p-6 rounded-2xl space-y-4">
+    <div className="rounded-3xl p-6 border border-white/10 bg-[#121824]/60 backdrop-blur-xl shadow-xl space-y-4">
       <div>
-        <h3 className="text-lg font-bold flex items-center gap-2">🧪 Biomarker & Lab Diagnostics</h3>
-        <p className="text-xs text-gray-400">Log routine blood biomarkers to analyze recovery and energy capacity (Disha Health model).</p>
+        <h3 className="text-lg font-black text-white flex items-center gap-2">🧪 Biomarker & Lab Diagnostics</h3>
+        <p className="text-xs text-gray-400">Routine diagnostics under the Disha Clinical Preventive health model.</p>
       </div>
       <div className="grid md:grid-cols-3 gap-4">
-        <div className="bg-[#0A0E17] border border-gray-800 p-4 rounded-xl">
-          <label className="text-xs text-gray-400 block mb-1">Vitamin D3 (ng/mL)</label>
+        <div className="bg-[#0A0E17]/80 border border-white/10 p-4 rounded-2xl">
+          <label className="text-[11px] font-bold text-gray-400 block mb-1">Vitamin D3 (ng/mL)</label>
           <input 
             type="number"
             placeholder="Optimal: 30 - 100"
             value={biomarkers?.vitD || ''}
             onChange={(e) => handleChange('vitD', e.target.value)}
-            className="w-full bg-[#121824] border border-gray-700 rounded-lg p-2 text-sm text-white outline-none focus:border-[#00E5FF]"
+            className="w-full bg-[#121824] border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-[#00E5FF] font-mono"
           />
-          {vitD && vitD < 30 && <p className="text-[11px] text-amber-400 mt-2">⚠️ Deficient: Lower bone density, slow joint recovery, and muscle fatigue.</p>}
-          {vitD && vitD >= 30 && <p className="text-[11px] text-emerald-400 mt-2">✓ Optimal bone and muscle strength.</p>}
+          {vitD && vitD < 30 && <p className="text-[10px] text-amber-400 mt-2">⚠️ Deficient: Slow joint recovery, fatigue.</p>}
+          {vitD && vitD >= 30 && <p className="text-[10px] text-emerald-400 mt-2">✓ Optimal bone density.</p>}
         </div>
-        <div className="bg-[#0A0E17] border border-gray-800 p-4 rounded-xl">
-          <label className="text-xs text-gray-400 block mb-1">Vitamin B12 (pg/mL)</label>
+        <div className="bg-[#0A0E17]/80 border border-white/10 p-4 rounded-2xl">
+          <label className="text-[11px] font-bold text-gray-400 block mb-1">Vitamin B12 (pg/mL)</label>
           <input 
             type="number"
             placeholder="Optimal: 200 - 900"
             value={biomarkers?.b12 || ''}
             onChange={(e) => handleChange('b12', e.target.value)}
-            className="w-full bg-[#121824] border border-gray-700 rounded-lg p-2 text-sm text-white outline-none focus:border-[#00E5FF]"
+            className="w-full bg-[#121824] border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-[#00E5FF] font-mono"
           />
-          {vitB12 && vitB12 < 200 && <p className="text-[11px] text-amber-400 mt-2">⚠️ Low B12: Lethargy, poor nerve transmission, reduced workout stamina.</p>}
-          {vitB12 && vitB12 >= 200 && <p className="text-[11px] text-emerald-400 mt-2">✓ Healthy energy metabolism.</p>}
+          {vitB12 && vitB12 < 200 && <p className="text-[10px] text-amber-400 mt-2">⚠️ Low B12: Lethargy, poor nerve speed.</p>}
+          {vitB12 && vitB12 >= 200 && <p className="text-[10px] text-emerald-400 mt-2">✓ Healthy energy metabolism.</p>}
         </div>
-        <div className="bg-[#0A0E17] border border-gray-800 p-4 rounded-xl">
-          <label className="text-xs text-gray-400 block mb-1">Fasting Glucose (mg/dL)</label>
+        <div className="bg-[#0A0E17]/80 border border-white/10 p-4 rounded-2xl">
+          <label className="text-[11px] font-bold text-gray-400 block mb-1">Fasting Sugar (mg/dL)</label>
           <input 
             type="number"
             placeholder="Normal: 70 - 99"
             value={biomarkers?.fastingSugar || ''}
             onChange={(e) => handleChange('fastingSugar', e.target.value)}
-            className="w-full bg-[#121824] border border-gray-700 rounded-lg p-2 text-sm text-white outline-none focus:border-[#00E5FF]"
+            className="w-full bg-[#121824] border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-[#00E5FF] font-mono"
           />
-          {sugar && sugar > 100 && <p className="text-[11px] text-rose-400 mt-2">⚠️ Pre-diabetic alert: Limit fast sugars; prioritize high-fiber complex carbs.</p>}
-          {sugar && sugar <= 99 && <p className="text-[11px] text-emerald-400 mt-2">✓ Healthy fasting glucose level.</p>}
+          {sugar && sugar > 100 && <p className="text-[10px] text-rose-400 mt-2">⚠️ Pre-diabetic: Prioritize high-fiber meals.</p>}
+          {sugar && sugar <= 99 && <p className="text-[10px] text-emerald-400 mt-2">✓ Normal fasting range.</p>}
         </div>
       </div>
     </div>
@@ -1726,35 +1691,44 @@ function HealthRiskSection({ profile, selectedConditions, setSelectedConditions,
 
   return (
     <div className="w-full space-y-6">
-      <div className="bg-[#121824] border border-[#1E293B] p-6 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl">
+      <div className="rounded-3xl p-6 md:p-8 border border-white/10 bg-[#121824]/60 backdrop-blur-xl flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl">
         <div>
-          <span className="text-xs uppercase tracking-widest text-[#00E5FF] font-bold">Preventive Vitality Index</span>
-          <h3 className="text-2xl font-black mt-1">Lifestyle Readiness Score</h3>
-          <p className="text-xs text-gray-400 mt-1 max-w-md">Calculated dynamically using your BMI ({bmi.toFixed(1)}), active metabolic burn, and logged physical symptoms.</p>
+          <span className="text-[10px] font-black uppercase tracking-[0.25em] text-[#00E5FF] px-2.5 py-1 rounded-full bg-[#00E5FF]/10 border border-[#00E5FF]/30 inline-block mb-2">
+            Vitality Index
+          </span>
+          <h3 className="text-3xl font-black tracking-tight text-white">Lifestyle Readiness Score</h3>
+          <p className="text-xs text-gray-400 mt-1 max-w-md">Calculated dynamically using BMI ({bmi.toFixed(1)}), metabolic burn, and logged physical symptoms.</p>
         </div>
-        <div className="text-center bg-[#0A0E17] border border-gray-800 px-8 py-4 rounded-2xl min-w-[180px]">
-          <span className={`text-4xl font-black ${scoreColor}`}>{score} / 100</span>
-          <span className="block text-[11px] text-gray-400 mt-1 font-semibold uppercase">
+        <div className="text-center bg-[#0A0E17]/90 border border-white/10 px-8 py-5 rounded-3xl min-w-[200px] shadow-inner">
+          <span className={`text-4xl font-black font-mono ${scoreColor}`}>{score} / 100</span>
+          <span className="block text-[10px] text-gray-400 mt-1 font-bold uppercase tracking-wider">
             {score >= 80 ? 'Optimal Condition' : score >= 65 ? 'Moderate Caution' : 'Clinical Attention'}
           </span>
         </div>
       </div>
 
-      <div className="bg-[#121824] border border-[#1E293B] p-6 rounded-2xl">
-        <h3 className="text-lg font-bold mb-1">Select Existing Concerns / Injuries</h3>
-        <p className="text-xs text-gray-400 mb-4">Click any condition to auto-adapt your workout exercises and apply safety cautions.</p>
+      <div className="rounded-3xl p-6 border border-white/10 bg-[#121824]/60 backdrop-blur-xl space-y-4">
+        <h3 className="text-base font-black text-white">Active Concerns / Joint Injuries</h3>
         <div className="grid md:grid-cols-2 gap-3">
           {HEALTH_CONDITIONS.map((cond) => {
             const active = selectedConditions.includes(cond.id);
             return (
-              <div key={cond.id} onClick={() => toggleCondition(cond.id)} className={`p-4 rounded-xl border cursor-pointer transition ${active ? 'bg-[#00E5FF]/10 border-[#00E5FF] text-white' : 'bg-[#0A0E17] border-gray-800 text-gray-300 hover:border-gray-700'}`}>
+              <div 
+                key={cond.id} 
+                onClick={() => toggleCondition(cond.id)} 
+                className={`p-5 rounded-2xl border cursor-pointer transition-all duration-200 ${
+                  active ? 'bg-[#00E5FF]/15 border-[#00E5FF] text-white shadow-[0_0_20px_rgba(0,229,255,0.15)]' : 'bg-[#0A0E17]/60 border-white/5 text-gray-300 hover:border-white/20'
+                }`}
+              >
                 <div className="flex justify-between items-center mb-1">
-                  <span className="font-bold text-sm">{cond.label}</span>
-                  <span className="text-[10px] uppercase font-semibold bg-gray-800 px-2 py-0.5 rounded text-gray-400">{cond.tag}</span>
+                  <span className="font-black text-sm">{cond.label}</span>
+                  <span className="text-[9px] uppercase font-bold bg-white/5 px-2.5 py-0.5 rounded-md text-gray-400 border border-white/5">{cond.tag}</span>
                 </div>
                 <p className="text-xs text-gray-400 mt-2 leading-relaxed">{cond.caution}</p>
                 <div className="mt-3 text-right">
-                  <span className={`text-xs font-bold ${active ? 'text-[#00E5FF]' : 'text-gray-600'}`}>{active ? '✓ Active Caution' : '+ Click to Select'}</span>
+                  <span className={`text-[11px] font-black uppercase tracking-wider ${active ? 'text-[#00E5FF]' : 'text-gray-600'}`}>
+                    {active ? '✓ Active Caution' : '+ Tap to Select'}
+                  </span>
                 </div>
               </div>
             );
@@ -1772,49 +1746,49 @@ function ProfileModal({ profile, onSave, onClose }) {
   });
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-[#121824] border border-[#1E293B] p-6 rounded-2xl shadow-2xl text-white space-y-4">
-        <div className="flex justify-between items-center">
-          <h2 className="text-xl font-black text-[#00E5FF]">GYM F.R.E.A.K Profile</h2>
+    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+      <div className="w-full max-w-md bg-[#121824]/95 border border-white/10 p-6 md:p-8 rounded-3xl shadow-2xl text-white space-y-4">
+        <div className="flex justify-between items-center border-b border-white/10 pb-3">
+          <h2 className="text-xl font-black text-[#00E5FF] tracking-wider">ATHLETE BIOMETRICS</h2>
           {profile && <button onClick={onClose} className="text-gray-400 hover:text-white">✕</button>}
         </div>
         <div>
-          <label className="text-xs text-gray-400">Full Name</label>
-          <input type="text" required value={data.name} onChange={e => setData({...data, name: e.target.value})} className="w-full bg-[#0A0E17] border border-gray-700 rounded-lg p-2.5 text-sm text-white outline-none focus:border-[#00E5FF]" />
+          <label className="text-[11px] font-bold text-gray-400 block mb-1">Full Name</label>
+          <input type="text" required value={data.name} onChange={e => setData({...data, name: e.target.value})} className="w-full bg-[#0A0E17] border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-[#00E5FF]" />
         </div>
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="text-xs text-gray-400">Age</label>
-            <input type="number" value={data.age} onChange={e => setData({...data, age: e.target.value})} className="w-full bg-[#0A0E17] border border-gray-700 rounded-lg p-2.5 text-sm text-white outline-none focus:border-[#00E5FF]" />
+            <label className="text-[11px] font-bold text-gray-400 block mb-1">Age</label>
+            <input type="number" value={data.age} onChange={e => setData({...data, age: e.target.value})} className="w-full bg-[#0A0E17] border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-[#00E5FF] font-mono" />
           </div>
           <div>
-            <label className="text-xs text-gray-400">Gender</label>
-            <select value={data.gender} onChange={e => setData({...data, gender: e.target.value})} className="w-full bg-[#0A0E17] border border-gray-700 rounded-lg p-2.5 text-sm text-white outline-none focus:border-[#00E5FF]">
+            <label className="text-[11px] font-bold text-gray-400 block mb-1">Gender</label>
+            <select value={data.gender} onChange={e => setData({...data, gender: e.target.value})} className="w-full bg-[#0A0E17] border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-[#00E5FF]">
               <option value="male">Male</option><option value="female">Female</option>
             </select>
           </div>
         </div>
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="text-xs text-gray-400">Height (cm)</label>
-            <input type="number" value={data.height} onChange={e => setData({...data, height: e.target.value})} className="w-full bg-[#0A0E17] border border-gray-700 rounded-lg p-2.5 text-sm text-white outline-none focus:border-[#00E5FF]" />
+            <label className="text-[11px] font-bold text-gray-400 block mb-1">Height (cm)</label>
+            <input type="number" value={data.height} onChange={e => setData({...data, height: e.target.value})} className="w-full bg-[#0A0E17] border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-[#00E5FF] font-mono" />
           </div>
           <div>
-            <label className="text-xs text-gray-400">Weight (kg)</label>
-            <input type="number" value={data.weight} onChange={e => setData({...data, weight: e.target.value})} className="w-full bg-[#0A0E17] border border-gray-700 rounded-lg p-2.5 text-sm text-white outline-none focus:border-[#00E5FF]" />
+            <label className="text-[11px] font-bold text-gray-400 block mb-1">Weight (kg)</label>
+            <input type="number" value={data.weight} onChange={e => setData({...data, weight: e.target.value})} className="w-full bg-[#0A0E17] border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-[#00E5FF] font-mono" />
           </div>
         </div>
         <div>
-          <label className="text-xs text-gray-400">Diet Preference</label>
-          <select value={data.diet_pref || 'veg'} onChange={e => setData({...data, diet_pref: e.target.value})} className="w-full bg-[#0A0E17] border border-gray-700 rounded-lg p-2.5 text-sm text-white outline-none focus:border-[#00E5FF]">
-            <option value="veg">🌱 Pure Vegetarian (No eggs, no meat)</option>
-            <option value="egg">🥚 Eggetarian (Vegetarian + Eggs)</option>
-            <option value="non_veg">🍗 Non-Vegetarian (All foods)</option>
+          <label className="text-[11px] font-bold text-gray-400 block mb-1">Diet Preference</label>
+          <select value={data.diet_pref || 'veg'} onChange={e => setData({...data, diet_pref: e.target.value})} className="w-full bg-[#0A0E17] border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-[#00E5FF]">
+            <option value="veg">🌱 Pure Vegetarian</option>
+            <option value="egg">🥚 Eggetarian</option>
+            <option value="non_veg">🍗 Non-Vegetarian</option>
           </select>
         </div>
         <div>
-          <label className="text-xs text-gray-400">Activity Level</label>
-          <select value={data.activity} onChange={e => setData({...data, activity: e.target.value})} className="w-full bg-[#0A0E17] border border-gray-700 rounded-lg p-2.5 text-sm text-white outline-none focus:border-[#00E5FF]">
+          <label className="text-[11px] font-bold text-gray-400 block mb-1">Activity Level</label>
+          <select value={data.activity} onChange={e => setData({...data, activity: e.target.value})} className="w-full bg-[#0A0E17] border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-[#00E5FF]">
             <option value="1.2">Sedentary (Little or no workout)</option>
             <option value="1.375">Lightly Active (1-3 days/week)</option>
             <option value="1.55">Moderately Active (3-5 days/week)</option>
@@ -1822,15 +1796,15 @@ function ProfileModal({ profile, onSave, onClose }) {
           </select>
         </div>
         <div>
-          <label className="text-xs text-gray-400">Goal</label>
-          <select value={data.goal} onChange={e => setData({...data, goal: e.target.value})} className="w-full bg-[#0A0E17] border border-gray-700 rounded-lg p-2.5 text-sm text-white outline-none focus:border-[#00E5FF]">
+          <label className="text-[11px] font-bold text-gray-400 block mb-1">Fitness Target</label>
+          <select value={data.goal} onChange={e => setData({...data, goal: e.target.value})} className="w-full bg-[#0A0E17] border border-white/10 rounded-xl p-3 text-sm text-white outline-none focus:border-[#00E5FF]">
             <option value="fat_loss">Fat Loss (-400 kcal deficit)</option>
             <option value="maintenance">Maintenance</option>
             <option value="muscle_gain">Muscle Gain (+350 kcal surplus)</option>
           </select>
         </div>
-        <button onClick={() => data.name && onSave(data)} className="w-full bg-[#00E5FF] hover:bg-[#00B4D8] text-black font-black py-3 rounded-xl transition text-sm shadow-lg shadow-[#00E5FF]/20">
-          Save & Compute Analytics
+        <button onClick={() => data.name && onSave(data)} className="w-full bg-gradient-to-r from-[#00E5FF] to-[#00B4D8] text-black font-black py-3.5 rounded-xl uppercase tracking-wider text-xs shadow-[0_0_20px_rgba(0,229,255,0.3)] transition active:scale-95">
+          Save Biometrics
         </button>
       </div>
     </div>
@@ -1913,13 +1887,13 @@ export default function App() {
     if (!currentUser) return;
     const loadFromCloud = async () => {
       try {
-        const { data, error } = await supabase
+        const { data } = await supabase
           .from('user_profiles')
           .select('*')
           .eq('user_id', currentUser.id)
           .maybeSingle();
 
-        if (data && !error) {
+        if (data) {
           if (data.profile && Object.keys(data.profile).length > 0) setProfile(data.profile);
           if (data.conditions) setSelectedConditions(data.conditions);
           if (data.biomarkers) setBiomarkers(data.biomarkers);
@@ -1934,7 +1908,7 @@ export default function App() {
 
         if (customData) setCustomExercises(customData);
       } catch (err) {
-        console.error('Initial Cloud Fetch error:', err);
+        console.error('Cloud load error:', err);
       }
     };
     loadFromCloud();
@@ -1990,15 +1964,12 @@ export default function App() {
   const handleAddCustomExercise = async (newEx) => {
     if (!currentUser?.id) return;
     try {
-      const payload = {
-        ...newEx,
-        user_id: currentUser.id
-      };
+      const payload = { ...newEx, user_id: currentUser.id };
       const { data, error } = await supabase.from('custom_exercises').insert([payload]).select();
       if (error) throw error;
       if (data) {
         setCustomExercises(prev => [...prev, data[0]]);
-        alert(`Added "${newEx.name}" to your routine! 💪`);
+        alert(`Added "${newEx.name}" to routine! 💪`);
       }
     } catch (err) {
       alert(`Error saving custom exercise: ${err.message}`);
@@ -2006,24 +1977,17 @@ export default function App() {
   };
 
   const handleUpdateDietPref = (newPref) => {
-    setProfile(prev => ({
-      ...prev,
-      diet_pref: newPref
-    }));
+    setProfile(prev => ({ ...prev, diet_pref: newPref }));
   };
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
   };
 
-  const handleExportTelemetry = () => {
-    window.print();
-  };
-
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4 bg-[#0A0E17] text-[#00E5FF] font-black tracking-widest uppercase text-sm">
-        Initializing GYM F.R.E.A.K...
+        Initializing GYM F.R.E.A.K Terminal...
       </div>
     );
   }
@@ -2034,7 +1998,7 @@ export default function App() {
 
   if (!profile) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4" style={{ backgroundColor: C.bg }}>
+      <div className="min-h-screen flex items-center justify-center p-4 bg-[#0A0E17]">
         <ProfileModal onSave={(p) => setProfile(p)} />
       </div>
     );
@@ -2060,10 +2024,9 @@ export default function App() {
   const selectedKey = workoutType === 'home' ? 'home' : gymSplitType;
   const basePlan = WORKOUT_DATABASE[selectedKey];
 
-  // Merge custom exercises into splits
   const currentPlan = {
     ...basePlan,
-    splits: basePlan.splits.map((split, idx) => {
+    splits: basePlan.splits.map((split) => {
       const extra = customExercises
         .filter(ce => ce.split_type === selectedKey && ce.day_label === split.day)
         .map(ce => `${ce.name} [${ce.target_muscle}] (Custom)`);
@@ -2083,7 +2046,7 @@ export default function App() {
       if (text.toLowerCase().includes('deadlift') || text.toLowerCase().includes('bent-over')) return text + ' ⚠️ [Spine Safe: Replace with Chest-Supported Rows]';
     }
     if (selectedConditions.includes('hypertension')) {
-      if (text.toLowerCase().includes('heavy') || text.toLowerCase().includes('failure')) return text + ' ⚠️ [Cadence: Keep controlled breathing, avoid maximum strain]';
+      if (text.toLowerCase().includes('heavy') || text.toLowerCase().includes('failure')) return text + ' ⚠️ [Cadence: Keep steady breath, avoid maximum strain]';
     }
     return text;
   };
@@ -2091,184 +2054,188 @@ export default function App() {
   const completedCount = Object.values(completedWorkouts).filter(Boolean).length;
 
   return (
-    <div className="min-h-screen text-white pb-16 font-sans antialiased" style={{ backgroundColor: C.bg }}>
-      <header className="border-b border-[#1E293B] bg-[#121824]/90 backdrop-blur sticky top-0 z-40 px-6 py-4">
+    <div className="min-h-screen text-white pb-28 md:pb-16 font-sans antialiased bg-[#0A0E17] selection:bg-[#00E5FF] selection:text-black">
+      {/* TOP HEADER */}
+      <header className="border-b border-white/10 bg-[#121824]/80 backdrop-blur-xl sticky top-0 z-40 px-6 py-4">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <span className="text-2xl">🔥</span>
+            <span className="text-2xl filter drop-shadow-[0_0_8px_#00E5FF]">🔥</span>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-black text-2xl tracking-wider text-[#00E5FF] drop-shadow-[0_0_12px_rgba(0,229,255,0.4)]">
+                <span className="font-black text-2xl tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-white via-white to-[#00E5FF]">
                   GYM F.R.E.A.K
                 </span>
-                <span className="text-[10px] flex items-center gap-1 font-semibold px-2 py-0.5 rounded-full border bg-[#0A0E17] border-gray-800">
+                <span className="text-[10px] flex items-center gap-1 font-mono font-bold px-2 py-0.5 rounded-full border bg-black/40 border-white/10">
                   {syncStatus === 'synced' && <span className="text-emerald-400">● Synced</span>}
-                  {syncStatus === 'syncing' && <span className="text-amber-400 animate-pulse">🔄 Syncing...</span>}
-                  {syncStatus === 'error' && <span className="text-rose-400">⚠️ Local Only</span>}
+                  {syncStatus === 'syncing' && <span className="text-amber-400 animate-pulse">🔄 Syncing</span>}
+                  {syncStatus === 'error' && <span className="text-rose-400">⚠️ Local</span>}
                 </span>
               </div>
             </div>
           </div>
-          <div className="flex items-center gap-2 no-print">
+          <div className="flex items-center gap-2">
             <button 
               onClick={() => setShowCalculator(true)}
-              className="text-xs bg-[#00E5FF]/10 hover:bg-[#00E5FF]/20 text-[#00E5FF] px-3 py-2 rounded-xl border border-[#00E5FF]/30 transition flex items-center gap-1.5 font-bold"
+              className="text-xs bg-[#00E5FF]/10 hover:bg-[#00E5FF]/20 text-[#00E5FF] px-3.5 py-2 rounded-xl border border-[#00E5FF]/30 transition flex items-center gap-1.5 font-black uppercase tracking-wider active:scale-95 shadow-[0_0_12px_rgba(0,229,255,0.15)]"
             >
               🧮 1RM & Plates
             </button>
-            <button 
-              onClick={handleExportTelemetry}
-              className="text-xs bg-[#1E293B] hover:bg-gray-800 text-gray-200 px-3 py-2 rounded-xl border border-gray-700 transition flex items-center gap-1.5 font-semibold"
-            >
-              📄 Export PDF
+            <button onClick={() => setIsEditing(true)} className="text-xs bg-white/5 hover:bg-white/10 text-gray-200 px-3 py-2 rounded-xl border border-white/10 transition active:scale-95">
+              ✏️
             </button>
-            <button onClick={() => setIsEditing(true)} className="text-xs bg-[#1E293B] hover:bg-gray-800 text-gray-200 px-3 py-2 rounded-xl border border-gray-700 transition flex items-center gap-1.5">
-              ✏️ Profile
-            </button>
-            <button onClick={handleSignOut} className="text-xs bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 px-3 py-2 rounded-xl border border-rose-500/30 transition flex items-center gap-1.5">
+            <button onClick={handleSignOut} className="text-xs bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 px-3 py-2 rounded-xl border border-rose-500/30 transition active:scale-95">
               Logout
             </button>
           </div>
         </div>
       </header>
 
-      <div className="max-w-6xl mx-auto px-6 mt-6 no-print">
-        <div className="inline-flex bg-[#121824] p-1.5 rounded-2xl border border-[#1E293B] shadow-lg flex-wrap gap-1">
-          <button onClick={() => setCurrentTab('dashboard')} className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${currentTab === 'dashboard' ? 'bg-[#00E5FF] text-black shadow-lg shadow-[#00E5FF]/20' : 'text-gray-400 hover:text-white'}`}>
-            📊 Tracker
-          </button>
-          <button onClick={() => setCurrentTab('pr')} className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${currentTab === 'pr' ? 'bg-[#00E5FF] text-black shadow-lg shadow-[#00E5FF]/20' : 'text-gray-400 hover:text-white'}`}>
-            🏆 PR Trophy Wall
-          </button>
-          <button onClick={() => setCurrentTab('food')} className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${currentTab === 'food' ? 'bg-[#00E5FF] text-black shadow-lg shadow-[#00E5FF]/20' : 'text-gray-400 hover:text-white'}`}>
-            🍱 Diet Logger
-          </button>
-          <button onClick={() => setCurrentTab('vault')} className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${currentTab === 'vault' ? 'bg-[#00E5FF] text-black shadow-lg shadow-[#00E5FF]/20' : 'text-gray-400 hover:text-white'}`}>
-            ⚡ Vault
-          </button>
-          <button onClick={() => setCurrentTab('consult')} className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${currentTab === 'consult' ? 'bg-[#00E5FF] text-black shadow-lg shadow-[#00E5FF]/20' : 'text-gray-400 hover:text-white'}`}>
-            🩺 Consult
-          </button>
-          <button onClick={() => setCurrentTab('health')} className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${currentTab === 'health' ? 'bg-[#00E5FF] text-black shadow-lg shadow-[#00E5FF]/20' : 'text-gray-400 hover:text-white'}`}>
-            🛡️ Health Risk
-            {selectedConditions.length > 0 && <span className="bg-amber-400 text-black px-1.5 py-0.2 rounded-full text-[10px] font-bold">{selectedConditions.length}</span>}
-          </button>
+      {/* DESKTOP TABS */}
+      <div className="max-w-6xl mx-auto px-6 mt-6 hidden md:block">
+        <div className="inline-flex bg-[#121824]/80 p-1.5 rounded-2xl border border-white/10 backdrop-blur-xl shadow-xl flex-wrap gap-1">
+          {[
+            { id: 'dashboard', label: '📊 Tracker' },
+            { id: 'pr', label: '🏆 PR Wall' },
+            { id: 'food', label: '🍱 Diet Logger' },
+            { id: 'vault', label: '⚡ Visual Vault' },
+            { id: 'consult', label: '🩺 Consult' },
+            { id: 'health', label: '🛡️ Health Risk', badge: selectedConditions.length }
+          ].map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setCurrentTab(tab.id)}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all duration-200 ${
+                currentTab === tab.id
+                  ? 'bg-gradient-to-r from-[#00E5FF] to-[#00B4D8] text-black shadow-[0_0_20px_rgba(0,229,255,0.4)]'
+                  : 'text-gray-400 hover:text-white'
+              }`}
+            >
+              {tab.label}
+              {tab.badge > 0 && (
+                <span className="bg-amber-400 text-black px-1.5 py-0.2 rounded-full text-[10px] font-bold">
+                  {tab.badge}
+                </span>
+              )}
+            </button>
+          ))}
         </div>
       </div>
 
+      {/* MAIN CONTAINER */}
       <main className="max-w-6xl mx-auto px-6 mt-6">
         {currentTab === 'dashboard' && (
           <div className="space-y-6">
-            <div className="bg-[#121824] border border-[#1E293B] p-6 rounded-2xl flex flex-col md:flex-row justify-between md:items-center gap-4">
+            <div className="relative overflow-hidden rounded-3xl p-6 md:p-8 border border-white/10 bg-gradient-to-r from-[#121824]/90 via-[#0A0E17]/80 to-[#121824]/90 backdrop-blur-xl shadow-xl flex flex-col md:flex-row justify-between md:items-center gap-4">
               <div>
-                <h1 className="text-2xl font-black">Welcome Back, {profile.name} 👋</h1>
-                <p className="text-xs text-gray-400 mt-1">
+                <span className="text-[10px] font-black uppercase tracking-[0.25em] text-[#00E5FF] px-2.5 py-1 rounded-full bg-[#00E5FF]/10 border border-[#00E5FF]/30 inline-block mb-2">
+                  Athlete Terminal
+                </span>
+                <h1 className="text-3xl font-black tracking-tight text-white">Welcome back, {profile.name} 👋</h1>
+                <p className="text-xs text-gray-400 mt-1 font-mono">
                   Target: <span className="text-[#00E5FF] font-bold uppercase">{profile.goal.replace('_', ' ')}</span> • Diet: <span className="text-emerald-400 font-bold uppercase">{profile.diet_pref || 'Veg'}</span> • {profile.height}cm • {profile.weight}kg
                 </p>
               </div>
-              <div className="flex items-center gap-3">
-                <div className="bg-[#0A0E17] border border-gray-800 px-4 py-2.5 rounded-xl">
-                  <span className="text-[10px] uppercase text-gray-500 block font-bold">Body Mass Index</span>
-                  <span className="text-lg font-black text-white">{bmi}</span>
-                  <span className="text-[10px] text-[#00E5FF] ml-1.5 font-semibold">({bmi < 18.5 ? 'Underweight' : bmi < 24.9 ? 'Healthy' : 'Overweight'})</span>
-                </div>
+              <div className="bg-[#0A0E17]/80 border border-white/10 px-5 py-3 rounded-2xl text-center shadow-inner">
+                <span className="text-[10px] uppercase text-gray-400 block font-bold tracking-wider">BMI Ratio</span>
+                <span className="text-2xl font-black font-mono text-white">{bmi}</span>
+                <span className="text-[10px] text-[#00E5FF] block font-semibold">({bmi < 18.5 ? 'Underweight' : bmi < 24.9 ? 'Healthy' : 'Overweight'})</span>
               </div>
             </div>
 
             <ConsistencyMatrix waterGlasses={waterGlasses} completedWorkoutsCount={completedCount} />
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="bg-[#121824] border border-[#1E293B] p-5 rounded-2xl">
-                <span className="text-xs text-gray-400 block font-semibold">Target Calories</span>
-                <span className="text-3xl font-black text-[#00E5FF] tracking-tight">{targetCalories}</span>
-                <span className="text-[11px] text-gray-500 block mt-1">kcal / day</span>
+              <div className="rounded-3xl p-6 border border-white/10 bg-[#121824]/60 backdrop-blur-xl shadow-xl space-y-1">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block">Daily Target</span>
+                <span className="text-3xl font-black font-mono text-[#00E5FF] tracking-tight">{targetCalories}</span>
+                <span className="text-[11px] text-gray-500 font-mono block">kcal / day</span>
               </div>
-              <div className="bg-[#121824] border border-[#1E293B] p-5 rounded-2xl">
-                <span className="text-xs text-gray-400 block font-semibold">Maintenance (TDEE)</span>
-                <span className="text-3xl font-black text-white tracking-tight">{tdee}</span>
-                <span className="text-[11px] text-gray-500 block mt-1">kcal daily burn</span>
+              <div className="rounded-3xl p-6 border border-white/10 bg-[#121824]/60 backdrop-blur-xl shadow-xl space-y-1">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block">Daily Burn</span>
+                <span className="text-3xl font-black font-mono text-white tracking-tight">{tdee}</span>
+                <span className="text-[11px] text-gray-500 font-mono block">kcal TDEE</span>
               </div>
-              <div className="bg-[#121824] border border-[#1E293B] p-5 rounded-2xl">
-                <span className="text-xs text-gray-400 block font-semibold">Protein Target</span>
-                <span className="text-3xl font-black text-emerald-400 tracking-tight">{targetProtein}g</span>
-                <span className="text-[11px] text-gray-500 block mt-1">Optimal muscle retention</span>
+              <div className="rounded-3xl p-6 border border-white/10 bg-[#121824]/60 backdrop-blur-xl shadow-xl space-y-1">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block">Protein Goal</span>
+                <span className="text-3xl font-black font-mono text-emerald-400 tracking-tight">{targetProtein}g</span>
+                <span className="text-[11px] text-gray-500 block font-mono">Muscle repair</span>
               </div>
-              <div className="bg-[#121824] border border-[#1E293B] p-5 rounded-2xl">
-                <span className="text-xs text-gray-400 block font-semibold">Basal Metabolic Rate</span>
-                <span className="text-3xl font-black text-amber-400 tracking-tight">{Math.round(bmr)}</span>
-                <span className="text-[11px] text-gray-500 block mt-1">Resting energy</span>
+              <div className="rounded-3xl p-6 border border-white/10 bg-[#121824]/60 backdrop-blur-xl shadow-xl space-y-1">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block">Resting BMR</span>
+                <span className="text-3xl font-black font-mono text-amber-400 tracking-tight">{Math.round(bmr)}</span>
+                <span className="text-[11px] text-gray-500 block font-mono">Basal energy</span>
               </div>
             </div>
 
             <ClinicalDietPanel profile={profile} selectedConditions={selectedConditions} targetCalories={targetCalories} targetProtein={targetProtein} />
 
             <div className="grid md:grid-cols-2 gap-6">
-              <div className="bg-[#121824] border border-[#1E293B] p-6 rounded-2xl space-y-4">
+              <div className="rounded-3xl p-6 border border-white/10 bg-[#121824]/60 backdrop-blur-xl shadow-xl space-y-4">
                 <div className="flex justify-between items-center">
                   <div>
-                    <h3 className="font-bold text-base flex items-center gap-2">💧 Daily Hydration</h3>
+                    <h3 className="font-black text-base flex items-center gap-2 text-white">💧 Fluid Hydration</h3>
                     <p className="text-xs text-gray-400">Aim for at least 8 to 10 glasses daily</p>
                   </div>
-                  <span className="text-sm font-black text-[#00E5FF]">{waterGlasses} / 10 Glasses</span>
+                  <span className="text-sm font-black font-mono text-[#00E5FF]">{waterGlasses} / 10 Glasses</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <button onClick={() => setWaterGlasses(prev => Math.max(0, prev - 1))} className="w-10 h-10 rounded-xl bg-[#0A0E17] border border-gray-700 text-lg font-bold hover:bg-gray-800 transition">-</button>
-                  <div className="flex-1 bg-[#0A0E17] h-3.5 rounded-full overflow-hidden border border-gray-800">
-                    <div className="bg-[#00E5FF] h-full transition-all duration-300" style={{ width: `${Math.min(100, (waterGlasses / 10) * 100)}%` }} />
+                  <button onClick={() => setWaterGlasses(prev => Math.max(0, prev - 1))} className="w-11 h-11 rounded-2xl bg-[#0A0E17] border border-white/10 text-lg font-bold hover:bg-white/10 transition active:scale-95">-</button>
+                  <div className="flex-1 bg-[#0A0E17] h-4 rounded-full overflow-hidden p-0.5 border border-white/5 shadow-inner">
+                    <div className="bg-gradient-to-r from-[#00E5FF] to-[#00B4D8] h-full rounded-full transition-all duration-300 shadow-[0_0_15px_rgba(0,229,255,0.5)]" style={{ width: `${Math.min(100, (waterGlasses / 10) * 100)}%` }} />
                   </div>
-                  <button onClick={() => setWaterGlasses(prev => prev + 1)} className="w-10 h-10 rounded-xl bg-[#0A0E17] border border-gray-700 text-lg font-bold hover:bg-gray-800 transition">+</button>
+                  <button onClick={() => setWaterGlasses(prev => prev + 1)} className="w-11 h-11 rounded-2xl bg-[#0A0E17] border border-white/10 text-lg font-bold hover:bg-white/10 transition active:scale-95">+</button>
                 </div>
               </div>
 
-              <div className="bg-[#121824] border border-[#1E293B] p-6 rounded-2xl flex flex-col justify-between">
+              <div className="rounded-3xl p-6 border border-white/10 bg-[#121824]/60 backdrop-blur-xl shadow-xl flex flex-col justify-between">
                 <div>
-                  <h3 className="font-bold text-base flex items-center gap-2">🏋️ Training & Health Direction</h3>
+                  <h3 className="font-black text-base flex items-center gap-2 text-white">🏋️ Active Guidance</h3>
                   <p className="text-xs text-gray-300 mt-2 leading-relaxed">
-                    Log weight and reps on each exercise to track progressive overload. Logged data is saved locally and synced to your cloud account.
+                    Log progressive overload weights for automatic estimated 1RM sync to your PR Trophy Wall.
                   </p>
                 </div>
-                <div className="mt-4 pt-3 border-t border-gray-800 flex justify-between text-xs text-gray-500">
-                  <span>Selected Mode: <span className="text-[#00E5FF] font-bold uppercase">{workoutType}</span></span>
-                  <span className="text-emerald-400 font-semibold">Active Plan</span>
+                <div className="mt-4 pt-3 border-t border-white/5 flex justify-between text-xs text-gray-400 font-mono">
+                  <span>Split: <span className="text-[#00E5FF] font-black uppercase">{workoutType}</span></span>
+                  <span className="text-emerald-400 font-bold">Cloud Synced</span>
                 </div>
               </div>
             </div>
 
-            <div className="bg-[#121824] border border-[#1E293B] p-6 rounded-2xl space-y-6">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-800/80 pb-5">
+            <div className="rounded-3xl p-6 border border-white/10 bg-[#121824]/60 backdrop-blur-xl shadow-xl space-y-6">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/5 pb-5">
                 <div>
-                  <h2 className="text-lg font-bold flex items-center gap-2">💪 Workout Schedule & Exercise Log</h2>
+                  <h2 className="text-lg font-black text-white flex items-center gap-2">💪 Workout Schedule & Logs</h2>
                   <p className="text-xs text-gray-400">Track sets, weights, and repetitions with integrated rest timer</p>
                 </div>
-                <div className="flex bg-[#0A0E17] p-1 rounded-xl border border-gray-800">
-                  <button onClick={() => setWorkoutType('gym')} className={`px-4 py-2 rounded-lg text-xs font-bold transition ${workoutType === 'gym' ? 'bg-[#00E5FF] text-black shadow-md' : 'text-gray-400 hover:text-white'}`}>🏋️ Gym Workout</button>
-                  <button onClick={() => setWorkoutType('home')} className={`px-4 py-2 rounded-lg text-xs font-bold transition ${workoutType === 'home' ? 'bg-[#00E5FF] text-black shadow-md' : 'text-gray-400 hover:text-white'}`}>🏠 Home Workout</button>
+                <div className="flex bg-[#0A0E17]/80 p-1 rounded-2xl border border-white/10 shadow-inner">
+                  <button onClick={() => setWorkoutType('gym')} className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition ${workoutType === 'gym' ? 'bg-[#00E5FF] text-black shadow-[0_0_15px_rgba(0,229,255,0.3)]' : 'text-gray-400 hover:text-white'}`}>🏋️ Gym</button>
+                  <button onClick={() => setWorkoutType('home')} className={`px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition ${workoutType === 'home' ? 'bg-[#00E5FF] text-black shadow-[0_0_15px_rgba(0,229,255,0.3)]' : 'text-gray-400 hover:text-white'}`}>🏠 Home</button>
                 </div>
               </div>
 
               {workoutType === 'gym' && (
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-xs text-gray-400 font-semibold mr-1">Select Gym Split:</span>
-                  <button onClick={() => setGymSplitType('gym_ppl')} className={`text-xs px-3.5 py-1.5 rounded-lg border font-bold transition ${gymSplitType === 'gym_ppl' ? 'bg-[#00E5FF]/20 text-[#00E5FF] border-[#00E5FF]' : 'bg-[#0A0E17] text-gray-400 border-gray-800 hover:text-white'}`}>Push Pull Legs (PPL)</button>
-                  <button onClick={() => setGymSplitType('gym_two_muscle')} className={`text-xs px-3.5 py-1.5 rounded-lg border font-bold transition ${gymSplitType === 'gym_two_muscle' ? 'bg-[#00E5FF]/20 text-[#00E5FF] border-[#00E5FF]' : 'bg-[#0A0E17] text-gray-400 border-gray-800 hover:text-white'}`}>Two Muscle / Day (Classic)</button>
-                  <button onClick={() => setGymSplitType('gym_one_muscle')} className={`text-xs px-3.5 py-1.5 rounded-lg border font-bold transition ${gymSplitType === 'gym_one_muscle' ? 'bg-[#00E5FF]/20 text-[#00E5FF] border-[#00E5FF]' : 'bg-[#0A0E17] text-gray-400 border-gray-800 hover:text-white'}`}>One Muscle / Day (Bro Split)</button>
+                  <span className="text-xs text-gray-400 font-bold mr-1">Split:</span>
+                  <button onClick={() => setGymSplitType('gym_ppl')} className={`text-xs px-3.5 py-1.5 rounded-xl border font-black uppercase tracking-wider transition ${gymSplitType === 'gym_ppl' ? 'bg-[#00E5FF]/20 text-[#00E5FF] border-[#00E5FF]' : 'bg-[#0A0E17] text-gray-400 border-white/5 hover:text-white'}`}>PPL</button>
+                  <button onClick={() => setGymSplitType('gym_two_muscle')} className={`text-xs px-3.5 py-1.5 rounded-xl border font-black uppercase tracking-wider transition ${gymSplitType === 'gym_two_muscle' ? 'bg-[#00E5FF]/20 text-[#00E5FF] border-[#00E5FF]' : 'bg-[#0A0E17] text-gray-400 border-white/5 hover:text-white'}`}>Two Muscle</button>
+                  <button onClick={() => setGymSplitType('gym_one_muscle')} className={`text-xs px-3.5 py-1.5 rounded-xl border font-black uppercase tracking-wider transition ${gymSplitType === 'gym_one_muscle' ? 'bg-[#00E5FF]/20 text-[#00E5FF] border-[#00E5FF]' : 'bg-[#0A0E17] text-gray-400 border-white/5 hover:text-white'}`}>Bro Split</button>
                 </div>
               )}
 
               <div className="grid md:grid-cols-2 gap-4">
                 {currentPlan.splits.map((split, idx) => (
-                  <div key={idx} className={`p-4 rounded-xl border transition ${completedWorkouts[`${selectedKey}_${idx}`] ? 'bg-[#00E5FF]/5 border-[#00E5FF]/40' : 'bg-[#121824] border-gray-800'}`}>
-                    <div className="flex justify-between items-start mb-3">
+                  <div key={idx} className={`p-5 rounded-3xl border transition-all ${completedWorkouts[`${selectedKey}_${idx}`] ? 'bg-[#00E5FF]/10 border-[#00E5FF]/50' : 'bg-[#0A0E17]/40 border-white/5'}`}>
+                    <div className="flex justify-between items-start mb-4">
                       <div>
-                        <span className="text-[11px] font-bold uppercase tracking-wider text-[#00E5FF]">{split.day}</span>
-                        <h4 className="font-bold text-sm text-white mt-0.5">{split.name}</h4>
+                        <span className="text-[10px] font-black font-mono uppercase tracking-widest text-[#00E5FF]">{split.day}</span>
+                        <h4 className="font-black text-sm text-white mt-0.5">{split.name}</h4>
                       </div>
-                      <button onClick={() => toggleWorkout(`${selectedKey}_${idx}`)} className={`text-xs px-3 py-1.5 rounded-lg font-bold transition ${completedWorkouts[`${selectedKey}_${idx}`] ? 'bg-emerald-500 text-black' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'}`}>
-                        {completedWorkouts[`${selectedKey}_${idx}`] ? '✓ Done' : 'Mark Complete'}
+                      <button onClick={() => toggleWorkout(`${selectedKey}_${idx}`)} className={`text-xs px-3.5 py-1.5 rounded-xl font-black uppercase tracking-wider transition active:scale-95 ${completedWorkouts[`${selectedKey}_${idx}`] ? 'bg-emerald-500 text-black shadow-[0_0_12px_rgba(16,185,129,0.3)]' : 'bg-white/10 text-gray-300 hover:bg-white/15'}`}>
+                        {completedWorkouts[`${selectedKey}_${idx}`] ? '✓ Done' : 'Complete'}
                       </button>
                     </div>
                     
-                    <div className="space-y-2 mt-3">
+                    <div className="space-y-2">
                       {split.exercises.map((ex, i) => {
                         const adapted = adaptExercise(ex);
                         return (
@@ -2332,6 +2299,33 @@ export default function App() {
           />
         )}
       </main>
+
+      {/* MOBILE STICKY BOTTOM NAVIGATION DOCK */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#121824]/90 backdrop-blur-2xl border-t border-white/10 px-3 py-2">
+        <div className="flex justify-around items-center">
+          {[
+            { id: 'dashboard', icon: '📊', label: 'Tracker' },
+            { id: 'pr', icon: '🏆', label: 'PRs' },
+            { id: 'food', icon: '🍱', label: 'Diet' },
+            { id: 'vault', icon: '⚡', label: 'Vault' },
+            { id: 'consult', icon: '🩺', label: 'Consult' },
+            { id: 'health', icon: '🛡️', label: 'Health' }
+          ].map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setCurrentTab(tab.id)}
+              className={`flex flex-col items-center py-1 px-2.5 rounded-xl transition active:scale-95 ${
+                currentTab === tab.id
+                  ? 'text-[#00E5FF] font-black'
+                  : 'text-gray-400 font-medium'
+              }`}
+            >
+              <span className="text-lg">{tab.icon}</span>
+              <span className="text-[9px] mt-0.5 tracking-tight uppercase">{tab.label}</span>
+            </button>
+          ))}
+        </div>
+      </nav>
 
       {activeRestSeconds !== null && (
         <FloatingRestTimer 
