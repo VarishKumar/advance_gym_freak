@@ -376,6 +376,7 @@ function ConsultationView({ currentUser, profile, selectedConditions, biomarkers
           const { error } = await supabase.from('consultations').insert([
             {
               user_id: currentUser.id,
+              patient_name: profile?.name || 'Athlete',
               expert_name: selectedExpert.name,
               specialty: selectedExpert.role,
               appointment_date: bookingDate,
@@ -411,8 +412,6 @@ function ConsultationView({ currentUser, profile, selectedConditions, biomarkers
       const rzp = new window.Razorpay(options);
       rzp.open();
     } else {
-      // Fallback if Razorpay CDN is not loaded
-      alert("Razorpay checkout is simulating successful payment test!");
       options.handler({ razorpay_payment_id: "pay_test_" + Math.random().toString(36).substring(2, 9) });
     }
   };
