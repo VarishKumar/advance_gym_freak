@@ -106,6 +106,329 @@ const playGymBeep = () => {
   }
 };
 
+function BeforeAfterSlider({ beforeUrl, afterUrl, beforeLabel, afterLabel }) {
+  const [sliderPos, setSliderPos] = useState(50);
+
+  return (
+    <div className="relative w-full max-w-md mx-auto aspect-[3/4] rounded-2xl overflow-hidden select-none border-2 border-[#1E293B] shadow-2xl bg-black">
+      <img 
+        src={afterUrl} 
+        alt="After Transformation" 
+        className="absolute inset-0 w-full h-full object-cover" 
+      />
+      <span className="absolute bottom-4 right-4 z-10 bg-black/80 text-[#00E5FF] text-[11px] font-black uppercase px-3 py-1 rounded-md border border-[#00E5FF]/40 backdrop-blur-sm">
+        {afterLabel || 'Recent Check-in'}
+      </span>
+
+      <div 
+        className="absolute inset-0 overflow-hidden" 
+        style={{ clipPath: `polygon(0 0, ${sliderPos}% 0, ${sliderPos}% 100%, 0 100%)` }}
+      >
+        <img 
+          src={beforeUrl} 
+          alt="Before Transformation" 
+          className="absolute inset-0 w-full h-full object-cover" 
+        />
+        <span className="absolute bottom-4 left-4 z-10 bg-black/80 text-rose-400 text-[11px] font-black uppercase px-3 py-1 rounded-md border border-rose-500/40 backdrop-blur-sm">
+          {beforeLabel || 'Baseline Photo'}
+        </span>
+      </div>
+
+      <input
+        type="range"
+        min="0"
+        max="100"
+        value={sliderPos}
+        onChange={(e) => setSliderPos(Number(e.target.value))}
+        className="absolute inset-0 w-full h-full opacity-0 cursor-ew-resize z-20"
+      />
+      <div 
+        className="absolute top-0 bottom-0 w-1 bg-[#00E5FF] pointer-events-none shadow-[0_0_15px_#00E5FF]" 
+        style={{ left: `${sliderPos}%` }}
+      >
+        <div className="absolute top-1/2 -translate-y-1/2 -left-4 w-8 h-8 rounded-full bg-[#0A0E17] border-2 border-[#00E5FF] flex items-center justify-center text-xs text-[#00E5FF] font-black shadow-lg">
+          ↔
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function TransformationVaultView({ currentUser, profile }) {
+  const [photos, setPhotos] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [selectedBeforeId, setSelectedBeforeId] = useState(null);
+  const [selectedAfterId, setSelectedAfterId] = useState(null);
+
+  const [weight, setWeight] = useState(profile?.weight || '');
+  const [bodyFat, setBodyFat] = useState('');
+  const [caption, setCaption] = useState('');
+  const [tag, setTag] = useState('checkin');
+
+  const loadPhotos = async () => {
+    if (!currentUser?.id) return;
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('progress_photos')
+        .select('*')
+        .eq('user_id', currentUser.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      if (data) {
+        setPhotos(data);
+        if (data.length >= 2) {
+          setSelectedBeforeId(data[data.length - 1].id);
+          setSelectedAfterId(data[0].id);
+        } else if (data.length === 1) {
+          setSelectedBeforeId(data[0].id);
+          setSelectedAfterId(data[0].id);
+        }
+      }
+    } catch (err) {
+      console.error('Error fetching transformation photos:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadPhotos();
+  }, [currentUser]);
+
+  const handleFileUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file || !currentUser?.id) return;
+
+    setUploading(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${currentUser.id}/${Date.now()}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('transformations')
+        .upload(fileName, file, { cacheControl: '3600', upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('transformations')
+        .getPublicUrl(fileName);
+
+      const { error: dbError } = await supabase
+        .from('progress_photos')
+        .insert([
+          {
+            user_id: currentUser.id,
+            photo_url: publicUrl,
+            weight: parseFloat(weight) || null,
+            body_fat: parseFloat(bodyFat) || null,
+            caption: caption || 'Physique check-in',
+            tag: tag
+          }
+        ]);
+
+      if (dbError) throw dbError;
+
+      alert('Progress photo logged successfully! 📸');
+      setCaption('');
+      loadPhotos();
+    } catch (err) {
+      console.error('Upload failed:', err);
+      alert(`Upload Error: ${err.message}`);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleDelete = async (photoId) => {
+    if (!confirm('Are you sure you want to remove this check-in?')) return;
+    try {
+      const { error } = await supabase
+        .from('progress_photos')
+        .delete()
+        .eq('id', photoId);
+
+      if (error) throw error;
+      loadPhotos();
+    } catch (err) {
+      alert(`Delete Error: ${err.message}`);
+    }
+  };
+
+  const beforePhoto = photos.find(p => p.id === selectedBeforeId) || photos[photos.length - 1];
+  const afterPhoto = photos.find(p => p.id === selectedAfterId) || photos[0];
+
+  return (
+    <div className="w-full space-y-6">
+      <div className="bg-[#121824] border border-[#1E293B] p-6 rounded-2xl flex flex-col md:flex-row justify-between md:items-center gap-4">
+        <div>
+          <span className="text-xs font-bold uppercase tracking-widest text-[#00E5FF]">Cyber Vault</span>
+          <h2 className="text-2xl font-black mt-1">Visual Transformation & Physique Vault</h2>
+          <p className="text-xs text-gray-400 mt-1 max-w-lg">
+            Track visual muscle density, body recomposition, and compare any two check-in dates with the split-screen slider.
+          </p>
+        </div>
+        <div className="bg-[#0A0E17] border border-gray-800 px-4 py-3 rounded-xl text-center">
+          <span className="text-xs text-gray-500 block uppercase font-bold">Total Check-ins</span>
+          <span className="text-2xl font-black text-[#00E5FF]">{photos.length}</span>
+        </div>
+      </div>
+
+      {photos.length >= 2 && beforePhoto && afterPhoto && (
+        <div className="bg-[#121824] border border-[#1E293B] p-6 rounded-2xl space-y-5">
+          <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3 border-b border-gray-800 pb-4">
+            <div>
+              <h3 className="text-base font-bold text-white flex items-center gap-2">
+                ⚡ Interactive Before / After Comparison
+              </h3>
+              <p className="text-xs text-gray-400">Drag the slider left and right to inspect biomechanical progress</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <select
+                value={selectedBeforeId || ''}
+                onChange={(e) => setSelectedBeforeId(e.target.value)}
+                className="bg-[#0A0E17] border border-rose-500/40 text-rose-300 text-xs px-2.5 py-1.5 rounded-lg outline-none"
+              >
+                {photos.map((p) => (
+                  <option key={`b-${p.id}`} value={p.id}>
+                    Before: {new Date(p.created_at).toLocaleDateString()} ({p.weight || '??'}kg)
+                  </option>
+                ))}
+              </select>
+              <span className="text-xs text-gray-500">vs</span>
+              <select
+                value={selectedAfterId || ''}
+                onChange={(e) => setSelectedAfterId(e.target.value)}
+                className="bg-[#0A0E17] border border-[#00E5FF]/40 text-[#00E5FF] text-xs px-2.5 py-1.5 rounded-lg outline-none"
+              >
+                {photos.map((p) => (
+                  <option key={`a-${p.id}`} value={p.id}>
+                    After: {new Date(p.created_at).toLocaleDateString()} ({p.weight || '??'}kg)
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <BeforeAfterSlider
+            beforeUrl={beforePhoto.photo_url}
+            afterUrl={afterPhoto.photo_url}
+            beforeLabel={`Baseline • ${new Date(beforePhoto.created_at).toLocaleDateString()} (${beforePhoto.weight || '--'}kg)`}
+            afterLabel={`Recent • ${new Date(afterPhoto.created_at).toLocaleDateString()} (${afterPhoto.weight || '--'}kg)`}
+          />
+        </div>
+      )}
+
+      <div className="bg-[#121824] border border-[#1E293B] p-6 rounded-2xl space-y-4">
+        <h3 className="font-bold text-base flex items-center gap-2">
+          📸 Upload New Body Check-in Photo
+        </h3>
+        <div className="grid md:grid-cols-4 gap-3">
+          <div>
+            <label className="text-xs text-gray-400 block mb-1">Scale Weight (kg)</label>
+            <input
+              type="number"
+              value={weight}
+              onChange={(e) => setWeight(e.target.value)}
+              placeholder="e.g. 72"
+              className="w-full bg-[#0A0E17] border border-gray-700 text-xs p-2.5 rounded-xl text-white outline-none focus:border-[#00E5FF]"
+            />
+          </div>
+          <div>
+            <label className="text-xs text-gray-400 block mb-1">Estimated Body Fat % (Optional)</label>
+            <input
+              type="number"
+              value={bodyFat}
+              onChange={(e) => setBodyFat(e.target.value)}
+              placeholder="e.g. 14.5"
+              className="w-full bg-[#0A0E17] border border-gray-700 text-xs p-2.5 rounded-xl text-white outline-none focus:border-[#00E5FF]"
+            />
+          </div>
+          <div>
+            <label className="text-xs text-gray-400 block mb-1">Milestone Tag</label>
+            <select
+              value={tag}
+              onChange={(e) => setTag(e.target.value)}
+              className="w-full bg-[#0A0E17] border border-gray-700 text-xs p-2.5 rounded-xl text-white outline-none focus:border-[#00E5FF]"
+            >
+              <option value="checkin">Weekly Check-in</option>
+              <option value="before">Baseline (Before)</option>
+              <option value="after">Current (After)</option>
+            </select>
+          </div>
+          <div>
+            <label className="text-xs text-gray-400 block mb-1">Caption / Notes</label>
+            <input
+              type="text"
+              value={caption}
+              onChange={(e) => setCaption(e.target.value)}
+              placeholder="e.g. Post leg day, empty stomach"
+              className="w-full bg-[#0A0E17] border border-gray-700 text-xs p-2.5 rounded-xl text-white outline-none focus:border-[#00E5FF]"
+            />
+          </div>
+        </div>
+
+        <div className="pt-2">
+          <label className="flex flex-col items-center justify-center border-2 border-dashed border-gray-700 hover:border-[#00E5FF] p-6 rounded-2xl cursor-pointer bg-[#0A0E17] transition group">
+            <span className="text-2xl group-hover:scale-110 transition">📷</span>
+            <span className="text-xs font-bold text-gray-300 mt-2">
+              {uploading ? 'Compressing & Syncing to Vault...' : 'Select or Capture Check-in Photo'}
+            </span>
+            <span className="text-[10px] text-gray-500 mt-0.5">JPEG, PNG, WebP up to 10MB</span>
+            <input
+              type="file"
+              accept="image/*"
+              disabled={uploading}
+              onChange={handleFileUpload}
+              className="hidden"
+            />
+          </label>
+        </div>
+      </div>
+
+      <div className="bg-[#121824] border border-[#1E293B] p-6 rounded-2xl space-y-4">
+        <h3 className="font-bold text-base flex items-center gap-2">📑 Check-in Gallery Timeline</h3>
+        {photos.length === 0 ? (
+          <p className="text-xs text-gray-500 py-6 text-center">
+            No transformation photos uploaded yet. Snap your first check-in above to start your visual streak!
+          </p>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+            {photos.map((p) => (
+              <div key={p.id} className="bg-[#0A0E17] border border-gray-800 rounded-xl overflow-hidden flex flex-col justify-between group">
+                <div className="relative aspect-[3/4] bg-black">
+                  <img src={p.photo_url} alt={p.caption} className="w-full h-full object-cover" />
+                  <span className="absolute top-2 left-2 text-[10px] uppercase font-black bg-black/80 px-2 py-0.5 rounded border border-gray-700 text-gray-200">
+                    {p.tag}
+                  </span>
+                  <button
+                    onClick={() => handleDelete(p.id)}
+                    className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 bg-rose-500 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs transition"
+                    title="Delete photo"
+                  >
+                    ✕
+                  </button>
+                </div>
+                <div className="p-3 space-y-1">
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="font-bold text-white">{p.weight ? `${p.weight} kg` : 'Weight unlogged'}</span>
+                    {p.body_fat && <span className="text-[#00E5FF] font-semibold">{p.body_fat}% BF</span>}
+                  </div>
+                  <p className="text-[10px] text-gray-400 truncate">{p.caption || 'No notes'}</p>
+                  <span className="text-[9px] text-gray-600 block">{new Date(p.created_at).toLocaleDateString()}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function PlateCalculatorModal({ onClose }) {
   const [calcWeight, setCalcWeight] = useState(60);
   const [calcReps, setCalcReps] = useState(8);
@@ -378,16 +701,13 @@ function ConsultationView({ currentUser, profile, selectedConditions, biomarkers
         status: 'Paid & Confirmed'
       };
 
-      console.log("Submitting payload:", payload);
-
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('consultations')
         .insert([payload])
         .select();
 
       if (error) {
-        console.error("Direct Supabase Error:", error);
-        alert(`Booking Error: ${error.message} (Code: ${error.code})`);
+        alert(`Booking Error: ${error.message}`);
         setStatusMsg(`Failed: ${error.message}`);
       } else {
         alert(`Booking Confirmed Successfully with ${selectedExpert.name}! 🎉`);
@@ -397,7 +717,6 @@ function ConsultationView({ currentUser, profile, selectedConditions, biomarkers
         loadBookings();
       }
     } catch (err) {
-      console.error("Unexpected Error:", err);
       alert(`Runtime Exception: ${err.message}`);
     } finally {
       setBookingLoading(false);
@@ -1208,6 +1527,9 @@ export default function App() {
           <button onClick={() => setCurrentTab('dashboard')} className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${currentTab === 'dashboard' ? 'bg-[#00E5FF] text-black shadow-lg shadow-[#00E5FF]/20' : 'text-gray-400 hover:text-white'}`}>
             📊 Tracker
           </button>
+          <button onClick={() => setCurrentTab('vault')} className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${currentTab === 'vault' ? 'bg-[#00E5FF] text-black shadow-lg shadow-[#00E5FF]/20' : 'text-gray-400 hover:text-white'}`}>
+            ⚡ Transformation Vault
+          </button>
           <button onClick={() => setCurrentTab('consult')} className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${currentTab === 'consult' ? 'bg-[#00E5FF] text-black shadow-lg shadow-[#00E5FF]/20' : 'text-gray-400 hover:text-white'}`}>
             🩺 Expert Consult <span className="bg-[#0A0E17] text-[#00E5FF] text-[10px] px-1.5 py-0.5 rounded border border-[#00E5FF]/30">Disha</span>
           </button>
@@ -1349,6 +1671,13 @@ export default function App() {
               </div>
             </div>
           </div>
+        )}
+
+        {currentTab === 'vault' && (
+          <TransformationVaultView
+            currentUser={currentUser}
+            profile={profile}
+          />
         )}
 
         {currentTab === 'consult' && (
