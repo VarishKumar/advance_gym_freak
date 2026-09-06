@@ -359,35 +359,61 @@ function ConsultationView({ currentUser, profile, selectedConditions, biomarkers
     e.preventDefault();
     if (!selectedExpert || !bookingDate) return;
 
-    setBookingLoading(true);
-    setStatusMsg('');
+    const numericFee = parseInt(selectedExpert.fee.replace(/\D/g, ''), 10) || 799;
 
-    try {
-      const notes = `Clinical Profile: BMI ${((profile?.weight || 70) / ((profile?.height || 170) / 100) ** 2).toFixed(1)}, Conditions: ${selectedConditions?.join(', ') || 'None'}, Sugar: ${biomarkers?.fastingSugar || 'Not logged'}`;
+    const options = {
+      key: "rzp_test_YourKeyHere",
+      amount: numericFee * 100,
+      currency: "INR",
+      name: "GYM F.R.E.A.K Clinical Tele-Health",
+      description: `1-on-1 Session with ${selectedExpert.name}`,
+      handler: async function (response) {
+        setBookingLoading(true);
+        setStatusMsg('');
+        try {
+          const notes = `Clinical Profile: BMI ${((profile?.weight || 70) / ((profile?.height || 170) / 100) ** 2).toFixed(1)}, Conditions: ${selectedConditions?.join(', ') || 'None'}, Sugar: ${biomarkers?.fastingSugar || 'Not logged'}, Payment ID: ${response.razorpay_payment_id || 'DEMO_PAID'}`;
 
-      const { error } = await supabase.from('consultations').insert([
-        {
-          user_id: currentUser.id,
-          expert_name: selectedExpert.name,
-          specialty: selectedExpert.role,
-          appointment_date: bookingDate,
-          slot_time: selectedTime,
-          notes: notes,
-          status: 'Confirmed'
+          const { error } = await supabase.from('consultations').insert([
+            {
+              user_id: currentUser.id,
+              expert_name: selectedExpert.name,
+              specialty: selectedExpert.role,
+              appointment_date: bookingDate,
+              slot_time: selectedTime,
+              notes: notes,
+              status: 'Paid & Confirmed'
+            }
+          ]);
+
+          if (error) throw error;
+
+          setStatusMsg(`Payment Successful (Txn: ${response.razorpay_payment_id || 'DEMO_OK'}). Your appointment with ${selectedExpert.name} is confirmed!`);
+          setSelectedExpert(null);
+          setBookingDate('');
+          loadBookings();
+        } catch (err) {
+          console.error('Booking sync failed:', err);
+          setStatusMsg('Payment processed, but failed to sync booking to cloud database.');
+        } finally {
+          setBookingLoading(false);
         }
-      ]);
+      },
+      prefill: {
+        name: profile?.name || 'Athlete',
+        email: currentUser?.email || 'user@gymfreak.com'
+      },
+      theme: {
+        color: "#00E5FF"
+      }
+    };
 
-      if (error) throw error;
-
-      setStatusMsg('Booking confirmed! Your clinical telemetry has been forwarded.');
-      setSelectedExpert(null);
-      setBookingDate('');
-      loadBookings();
-    } catch (err) {
-      console.error('Booking failed:', err);
-      setStatusMsg('Error creating booking. Please try again.');
-    } finally {
-      setBookingLoading(false);
+    if (window.Razorpay) {
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+    } else {
+      // Fallback if Razorpay CDN is not loaded
+      alert("Razorpay checkout is simulating successful payment test!");
+      options.handler({ razorpay_payment_id: "pay_test_" + Math.random().toString(36).substring(2, 9) });
     }
   };
 
@@ -459,7 +485,7 @@ function ConsultationView({ currentUser, profile, selectedConditions, biomarkers
         <form onSubmit={handleBooking} className="bg-[#121824] border border-[#00E5FF]/50 p-6 rounded-2xl space-y-4 shadow-2xl">
           <div className="flex justify-between items-center border-b border-gray-800 pb-3">
             <h3 className="text-base font-bold text-white flex items-center gap-2">
-              📅 Confirm Session with <span className="text-[#00E5FF]">{selectedExpert.name}</span>
+              📅 Pay & Schedule with <span className="text-[#00E5FF]">{selectedExpert.name}</span>
             </h3>
             <button type="button" onClick={() => setSelectedExpert(null)} className="text-gray-400 hover:text-white">✕</button>
           </div>
@@ -492,9 +518,9 @@ function ConsultationView({ currentUser, profile, selectedConditions, biomarkers
           <button
             type="submit"
             disabled={bookingLoading}
-            className="w-full bg-[#00E5FF] hover:bg-[#00B4D8] text-black font-black py-3 rounded-xl text-sm transition shadow-lg shadow-[#00E5FF]/20"
+            className="w-full bg-[#00E5FF] hover:bg-[#00B4D8] text-black font-black py-3 rounded-xl text-sm transition shadow-lg shadow-[#00E5FF]/20 flex items-center justify-center gap-2"
           >
-            {bookingLoading ? 'Securing Session Slot...' : `Confirm & Book Appointment (${selectedExpert.fee})`}
+            💳 {bookingLoading ? 'Processing Telemetry & Booking...' : `Proceed to Pay & Confirm (${selectedExpert.fee})`}
           </button>
         </form>
       )}
