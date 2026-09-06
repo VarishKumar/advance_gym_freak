@@ -90,7 +90,6 @@ const EXPERTS = [
 const TIME_SLOTS = ['10:00 AM', '11:30 AM', '03:00 PM', '05:30 PM', '07:00 PM'];
 
 const INDIAN_FOOD_PRESETS = [
-  // PURE VEGETARIAN STAPLES
   { name: 'Soya Chunks (Nutrela)', serving: '50g (Dry boiled)', cal: 172, pro: 26.0, carb: 16.5, fat: 0.5, category: 'veg' },
   { name: 'Paneer (Raw/Sautéed)', serving: '100g', cal: 265, pro: 18.3, carb: 3.5, fat: 20.8, category: 'veg' },
   { name: 'Tofu (Soya Paneer)', serving: '100g', cal: 83, pro: 10.0, carb: 1.9, fat: 5.3, category: 'veg' },
@@ -104,13 +103,9 @@ const INDIAN_FOOD_PRESETS = [
   { name: 'Sprouted Moong Salad', serving: '1 bowl (100g)', cal: 135, pro: 9.2, carb: 22.0, fat: 0.8, category: 'veg' },
   { name: 'Peanut Butter (Natural)', serving: '2 tbsp (32g)', cal: 190, pro: 8.0, carb: 6.0, fat: 16.0, category: 'veg' },
   { name: 'Whey Protein (1 Scoop)', serving: '33g scoop with water', cal: 130, pro: 24.0, carb: 3.0, fat: 1.5, category: 'veg' },
-
-  // EGGETARIAN
   { name: 'Boiled Whole Eggs', serving: '2 whole eggs', cal: 155, pro: 13.0, carb: 1.1, fat: 10.6, category: 'egg' },
   { name: 'Egg Whites (Boiled)', serving: '3 egg whites', cal: 52, pro: 11.0, carb: 0.7, fat: 0.2, category: 'egg' },
   { name: 'Egg Omelette (2 Eggs + Veggies)', serving: '1 serving', cal: 180, pro: 14.0, carb: 3.0, fat: 12.0, category: 'egg' },
-
-  // NON-VEG
   { name: 'Chicken Breast (Grilled/Cooked)', serving: '100g', cal: 165, pro: 31.0, carb: 0.0, fat: 3.6, category: 'non_veg' },
   { name: 'Chicken Curry (Home Style)', serving: '150g (3-4 pcs)', cal: 240, pro: 25.0, carb: 6.0, fat: 12.0, category: 'non_veg' },
   { name: 'Fish Fillet (Rohu/Basa)', serving: '100g', cal: 125, pro: 22.0, carb: 0.0, fat: 4.0, category: 'non_veg' }
@@ -133,10 +128,185 @@ const playGymBeep = () => {
   }
 };
 
+function PRWallView({ exerciseLogs, onAddCustomExercise }) {
+  const [customName, setCustomName] = useState('');
+  const [customTarget, setCustomTarget] = useState('Chest');
+  const [customSplit, setCustomSplit] = useState('gym_ppl');
+  const [customDay, setCustomDay] = useState('Day 1');
+
+  const keyLifts = [
+    { title: 'Bench Press', keywords: ['bench press', 'flat barbell', 'flat dumbbell', 'chest press'], icon: '🏋️‍♂️' },
+    { title: 'Barbell Squat', keywords: ['barbell squat', 'squat', 'leg press'], icon: '🦵' },
+    { title: 'Deadlift', keywords: ['deadlift', 'rack pull'], icon: '⚡' },
+    { title: 'Overhead Shoulder Press', keywords: ['shoulder press', 'overhead barbell', 'overhead dumbbell'], icon: '💥' },
+    { title: 'Bicep Curl', keywords: ['bicep curl', 'barbell curl', 'preacher curl', 'hammer curl'], icon: '💪' },
+    { title: 'Lat Pulldown / Row', keywords: ['lat pulldown', 'cable row', 'barbell row'], icon: '🦅' }
+  ];
+
+  const calculateLiftPR = (keywords) => {
+    let maxWeight = 0;
+    let maxReps = 0;
+    let exerciseFound = '';
+    let recordDate = '';
+
+    Object.entries(exerciseLogs).forEach(([name, sets]) => {
+      const lower = name.toLowerCase();
+      if (keywords.some(k => lower.includes(k))) {
+        sets.forEach(s => {
+          const w = parseFloat(s.weight) || 0;
+          if (w > maxWeight) {
+            maxWeight = w;
+            maxReps = s.reps || 1;
+            exerciseFound = name;
+            recordDate = s.date;
+          }
+        });
+      }
+    });
+
+    const est1RM = maxWeight > 0 ? Math.round(maxWeight * (1 + maxReps / 30)) : 0;
+    return { maxWeight, maxReps, exerciseFound, recordDate, est1RM };
+  };
+
+  const handleCreateCustom = (e) => {
+    e.preventDefault();
+    if (!customName.trim()) return;
+    onAddCustomExercise({
+      name: customName.trim(),
+      target_muscle: customTarget,
+      split_type: customSplit,
+      day_label: customDay
+    });
+    setCustomName('');
+  };
+
+  return (
+    <div className="w-full space-y-6">
+      <div className="bg-[#121824] border border-[#1E293B] p-6 rounded-2xl flex flex-col md:flex-row justify-between md:items-center gap-4">
+        <div>
+          <span className="text-xs font-bold uppercase tracking-widest text-[#00E5FF]">Strength Legacy</span>
+          <h2 className="text-2xl font-black mt-1">🏆 Personal Record (PR) Trophy Wall</h2>
+          <p className="text-xs text-gray-400 mt-1 max-w-lg">
+            Track your all-time heaviest lifts and estimated 1-Rep Max badges automatically computed from workout logs.
+          </p>
+        </div>
+      </div>
+
+      <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
+        {keyLifts.map((lift, idx) => {
+          const pr = calculateLiftPR(lift.keywords);
+          const hasPR = pr.maxWeight > 0;
+
+          return (
+            <div
+              key={idx}
+              className={`p-5 rounded-2xl border transition relative overflow-hidden flex flex-col justify-between ${
+                hasPR
+                  ? 'bg-gradient-to-br from-[#121824] to-[#0a1526] border-[#00E5FF]/40 shadow-[0_0_15px_rgba(0,229,255,0.1)]'
+                  : 'bg-[#121824] border-gray-800/80 opacity-70'
+              }`}
+            >
+              <div>
+                <div className="flex justify-between items-start">
+                  <span className="text-2xl">{lift.icon}</span>
+                  <span className={`text-[10px] font-black uppercase px-2.5 py-1 rounded-md border ${
+                    hasPR ? 'bg-[#00E5FF]/10 text-[#00E5FF] border-[#00E5FF]/30' : 'bg-gray-800 text-gray-500 border-gray-700'
+                  }`}>
+                    {hasPR ? 'RECORD HOLDER' : 'LOCKED'}
+                  </span>
+                </div>
+                <h3 className="text-base font-bold text-white mt-3">{lift.title}</h3>
+                <p className="text-[11px] text-gray-400 truncate mt-0.5">
+                  {hasPR ? pr.exerciseFound : 'Log a set in tracker to unlock'}
+                </p>
+              </div>
+
+              <div className="mt-5 pt-3 border-t border-gray-800/80 flex justify-between items-end">
+                <div>
+                  <span className="text-[10px] uppercase text-gray-500 block font-semibold">Max Lift Logged</span>
+                  <span className="text-2xl font-black text-white">
+                    {hasPR ? `${pr.maxWeight} kg` : '--'}
+                  </span>
+                  {hasPR && <span className="text-xs text-gray-400 ml-1">× {pr.maxReps}</span>}
+                </div>
+                {hasPR && (
+                  <div className="text-right">
+                    <span className="text-[9px] uppercase text-emerald-400 block font-bold">Est 1-Rep Max</span>
+                    <span className="text-lg font-black text-emerald-400">{pr.est1RM} kg</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="bg-[#121824] border border-[#1E293B] p-6 rounded-2xl space-y-4">
+        <div>
+          <h3 className="font-bold text-base flex items-center gap-2">🛠️ Custom Exercise Builder</h3>
+          <p className="text-xs text-gray-400 mt-0.5">
+            Add custom machines, cables, or regional gym variations to your daily tracker splits.
+          </p>
+        </div>
+
+        <form onSubmit={handleCreateCustom} className="grid sm:grid-cols-5 gap-3 pt-1">
+          <div className="sm:col-span-2">
+            <label className="text-xs text-gray-400 block mb-1">Exercise Name</label>
+            <input
+              type="text"
+              required
+              placeholder="e.g. Incline Smith Press, Cable Bayesian Curl"
+              value={customName}
+              onChange={(e) => setCustomName(e.target.value)}
+              className="w-full bg-[#0A0E17] border border-gray-700 text-xs p-2.5 rounded-xl text-white outline-none focus:border-[#00E5FF]"
+            />
+          </div>
+          <div>
+            <label className="text-xs text-gray-400 block mb-1">Target Muscle</label>
+            <select
+              value={customTarget}
+              onChange={(e) => setCustomTarget(e.target.value)}
+              className="w-full bg-[#0A0E17] border border-gray-700 text-xs p-2.5 rounded-xl text-white outline-none focus:border-[#00E5FF]"
+            >
+              <option value="Chest">Chest</option>
+              <option value="Back">Back</option>
+              <option value="Shoulders">Shoulders</option>
+              <option value="Arms">Arms</option>
+              <option value="Legs">Legs</option>
+              <option value="Core">Core</option>
+            </select>
+          </div>
+          <div>
+            <label className="text-xs text-gray-400 block mb-1">Assign to Split</label>
+            <select
+              value={customSplit}
+              onChange={(e) => setCustomSplit(e.target.value)}
+              className="w-full bg-[#0A0E17] border border-gray-700 text-xs p-2.5 rounded-xl text-white outline-none focus:border-[#00E5FF]"
+            >
+              <option value="gym_ppl">Push Pull Legs</option>
+              <option value="gym_two_muscle">Two Muscle / Day</option>
+              <option value="gym_one_muscle">Bro Split (1 Muscle)</option>
+              <option value="home">Home Workout</option>
+            </select>
+          </div>
+          <div className="flex items-end">
+            <button
+              type="submit"
+              className="w-full bg-[#00E5FF] hover:bg-[#00B4D8] text-black font-black py-2.5 rounded-xl text-xs transition"
+            >
+              + Add Exercise
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 function FoodLoggerView({ currentUser, targetCalories, targetProtein, profileDietPref, onUpdateDietPref }) {
   const [logs, setLogs] = useState([]);
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
-  const [dietFilter, setDietFilter] = useState(profileDietPref || 'veg'); // 'veg', 'egg', 'non_veg'
+  const [dietFilter, setDietFilter] = useState(profileDietPref || 'veg');
 
   const [customName, setCustomName] = useState('');
   const [customCal, setCustomCal] = useState('');
@@ -234,7 +404,7 @@ function FoodLoggerView({ currentUser, targetCalories, targetProtein, profileDie
   const visiblePresets = INDIAN_FOOD_PRESETS.filter(item => {
     if (dietFilter === 'veg') return item.category === 'veg';
     if (dietFilter === 'egg') return item.category === 'veg' || item.category === 'egg';
-    return true; // non_veg shows all
+    return true;
   });
 
   const totalCaloriesLogged = Math.round(logs.reduce((sum, item) => sum + (Number(item.calories) || 0), 0));
@@ -266,7 +436,6 @@ function FoodLoggerView({ currentUser, targetCalories, targetProtein, profileDie
         </div>
       </div>
 
-      {/* DIET PREFERENCE SELECTOR */}
       <div className="bg-[#121824] border border-[#1E293B] p-4 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <span className="text-xs font-bold text-gray-300 block">Your Dietary Lifestyle:</span>
@@ -300,7 +469,6 @@ function FoodLoggerView({ currentUser, targetCalories, targetProtein, profileDie
         </div>
       </div>
 
-      {/* DYNAMIC PROGRESS BARS */}
       <div className="grid md:grid-cols-2 gap-4">
         <div className="bg-[#121824] border border-[#1E293B] p-5 rounded-2xl space-y-2">
           <div className="flex justify-between items-center text-xs">
@@ -335,7 +503,6 @@ function FoodLoggerView({ currentUser, targetCalories, targetProtein, profileDie
         </div>
       </div>
 
-      {/* PRESETS GRID */}
       <div className="bg-[#121824] border border-[#1E293B] p-6 rounded-2xl space-y-4">
         <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
           <div>
@@ -384,7 +551,6 @@ function FoodLoggerView({ currentUser, targetCalories, targetProtein, profileDie
         </div>
       </div>
 
-      {/* CUSTOM FOOD ENTRY */}
       <div className="bg-[#121824] border border-[#1E293B] p-6 rounded-2xl space-y-4">
         <h3 className="font-bold text-base">✏️ Add Custom Dish / Food</h3>
         <form onSubmit={handleAddCustom} className="grid grid-cols-2 sm:grid-cols-6 gap-3">
@@ -441,7 +607,6 @@ function FoodLoggerView({ currentUser, targetCalories, targetProtein, profileDie
         </form>
       </div>
 
-      {/* TODAY LOGGED ITEMS */}
       <div className="bg-[#121824] border border-[#1E293B] p-6 rounded-2xl space-y-4">
         <div className="flex justify-between items-center border-b border-gray-800 pb-3">
           <h3 className="font-bold text-base">📑 Meal Logs for {selectedDate}</h3>
@@ -539,7 +704,6 @@ function BeforeAfterSlider({ beforeUrl, afterUrl, beforeLabel, afterLabel }) {
 
 function TransformationVaultView({ currentUser, profile }) {
   const [photos, setPhotos] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [selectedBeforeId, setSelectedBeforeId] = useState(null);
   const [selectedAfterId, setSelectedAfterId] = useState(null);
@@ -551,7 +715,6 @@ function TransformationVaultView({ currentUser, profile }) {
 
   const loadPhotos = async () => {
     if (!currentUser?.id) return;
-    setLoading(true);
     try {
       const { data, error } = await supabase
         .from('progress_photos')
@@ -572,8 +735,6 @@ function TransformationVaultView({ currentUser, profile }) {
       }
     } catch (err) {
       console.error('Error fetching transformation photos:', err);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -706,9 +867,7 @@ function TransformationVaultView({ currentUser, profile }) {
       )}
 
       <div className="bg-[#121824] border border-[#1E293B] p-6 rounded-2xl space-y-4">
-        <h3 className="font-bold text-base flex items-center gap-2">
-          📸 Upload New Body Check-in Photo
-        </h3>
+        <h3 className="font-bold text-base flex items-center gap-2">📸 Upload New Body Check-in Photo</h3>
         <div className="grid md:grid-cols-4 gap-3">
           <div>
             <label className="text-xs text-gray-400 block mb-1">Scale Weight (kg)</label>
@@ -1727,6 +1886,13 @@ export default function App() {
     } catch { return {}; }
   });
 
+  const [customExercises, setCustomExercises] = useState(() => {
+    try {
+      const saved = localStorage.getItem('gym_freak_custom_exercises');
+      return saved ? JSON.parse(saved) : [];
+    } catch { return []; }
+  });
+
   const [activeRestSeconds, setActiveRestSeconds] = useState(null);
   const [syncStatus, setSyncStatus] = useState('synced');
 
@@ -1760,6 +1926,13 @@ export default function App() {
           if (data.completed_workouts) setCompletedWorkouts(data.completed_workouts);
           if (data.water_glasses !== undefined) setWaterGlasses(data.water_glasses);
         }
+
+        const { data: customData } = await supabase
+          .from('custom_exercises')
+          .select('*')
+          .eq('user_id', currentUser.id);
+
+        if (customData) setCustomExercises(customData);
       } catch (err) {
         console.error('Initial Cloud Fetch error:', err);
       }
@@ -1774,6 +1947,7 @@ export default function App() {
     localStorage.setItem('gym_freak_water', waterGlasses.toString());
     localStorage.setItem('gym_freak_workouts', JSON.stringify(completedWorkouts));
     localStorage.setItem('gym_freak_exercise_logs', JSON.stringify(exerciseLogs));
+    localStorage.setItem('gym_freak_custom_exercises', JSON.stringify(customExercises));
 
     const syncToCloud = async () => {
       setSyncStatus('syncing');
@@ -1799,7 +1973,7 @@ export default function App() {
 
     const timeout = setTimeout(syncToCloud, 800);
     return () => clearTimeout(timeout);
-  }, [profile, selectedConditions, biomarkers, completedWorkouts, waterGlasses, exerciseLogs, currentUser]);
+  }, [profile, selectedConditions, biomarkers, completedWorkouts, waterGlasses, exerciseLogs, customExercises, currentUser]);
 
   const handleLogSet = (exerciseName, weightVal, repsVal) => {
     const currentList = exerciseLogs[exerciseName] || [];
@@ -1811,6 +1985,24 @@ export default function App() {
       ]
     };
     setExerciseLogs(updated);
+  };
+
+  const handleAddCustomExercise = async (newEx) => {
+    if (!currentUser?.id) return;
+    try {
+      const payload = {
+        ...newEx,
+        user_id: currentUser.id
+      };
+      const { data, error } = await supabase.from('custom_exercises').insert([payload]).select();
+      if (error) throw error;
+      if (data) {
+        setCustomExercises(prev => [...prev, data[0]]);
+        alert(`Added "${newEx.name}" to your routine! 💪`);
+      }
+    } catch (err) {
+      alert(`Error saving custom exercise: ${err.message}`);
+    }
   };
 
   const handleUpdateDietPref = (newPref) => {
@@ -1866,7 +2058,21 @@ export default function App() {
   };
 
   const selectedKey = workoutType === 'home' ? 'home' : gymSplitType;
-  const currentPlan = WORKOUT_DATABASE[selectedKey];
+  const basePlan = WORKOUT_DATABASE[selectedKey];
+
+  // Merge custom exercises into splits
+  const currentPlan = {
+    ...basePlan,
+    splits: basePlan.splits.map((split, idx) => {
+      const extra = customExercises
+        .filter(ce => ce.split_type === selectedKey && ce.day_label === split.day)
+        .map(ce => `${ce.name} [${ce.target_muscle}] (Custom)`);
+      return {
+        ...split,
+        exercises: [...split.exercises, ...extra]
+      };
+    })
+  };
 
   const adaptExercise = (ex) => {
     let text = ex;
@@ -1928,19 +2134,22 @@ export default function App() {
 
       <div className="max-w-6xl mx-auto px-6 mt-6 no-print">
         <div className="inline-flex bg-[#121824] p-1.5 rounded-2xl border border-[#1E293B] shadow-lg flex-wrap gap-1">
-          <button onClick={() => setCurrentTab('dashboard')} className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${currentTab === 'dashboard' ? 'bg-[#00E5FF] text-black shadow-lg shadow-[#00E5FF]/20' : 'text-gray-400 hover:text-white'}`}>
+          <button onClick={() => setCurrentTab('dashboard')} className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${currentTab === 'dashboard' ? 'bg-[#00E5FF] text-black shadow-lg shadow-[#00E5FF]/20' : 'text-gray-400 hover:text-white'}`}>
             📊 Tracker
           </button>
-          <button onClick={() => setCurrentTab('food')} className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${currentTab === 'food' ? 'bg-[#00E5FF] text-black shadow-lg shadow-[#00E5FF]/20' : 'text-gray-400 hover:text-white'}`}>
-            🍱 Indian Macro Logger
+          <button onClick={() => setCurrentTab('pr')} className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${currentTab === 'pr' ? 'bg-[#00E5FF] text-black shadow-lg shadow-[#00E5FF]/20' : 'text-gray-400 hover:text-white'}`}>
+            🏆 PR Trophy Wall
           </button>
-          <button onClick={() => setCurrentTab('vault')} className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${currentTab === 'vault' ? 'bg-[#00E5FF] text-black shadow-lg shadow-[#00E5FF]/20' : 'text-gray-400 hover:text-white'}`}>
-            ⚡ Transformation Vault
+          <button onClick={() => setCurrentTab('food')} className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${currentTab === 'food' ? 'bg-[#00E5FF] text-black shadow-lg shadow-[#00E5FF]/20' : 'text-gray-400 hover:text-white'}`}>
+            🍱 Diet Logger
           </button>
-          <button onClick={() => setCurrentTab('consult')} className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${currentTab === 'consult' ? 'bg-[#00E5FF] text-black shadow-lg shadow-[#00E5FF]/20' : 'text-gray-400 hover:text-white'}`}>
-            🩺 Expert Consult
+          <button onClick={() => setCurrentTab('vault')} className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${currentTab === 'vault' ? 'bg-[#00E5FF] text-black shadow-lg shadow-[#00E5FF]/20' : 'text-gray-400 hover:text-white'}`}>
+            ⚡ Vault
           </button>
-          <button onClick={() => setCurrentTab('health')} className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${currentTab === 'health' ? 'bg-[#00E5FF] text-black shadow-lg shadow-[#00E5FF]/20' : 'text-gray-400 hover:text-white'}`}>
+          <button onClick={() => setCurrentTab('consult')} className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${currentTab === 'consult' ? 'bg-[#00E5FF] text-black shadow-lg shadow-[#00E5FF]/20' : 'text-gray-400 hover:text-white'}`}>
+            🩺 Consult
+          </button>
+          <button onClick={() => setCurrentTab('health')} className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all ${currentTab === 'health' ? 'bg-[#00E5FF] text-black shadow-lg shadow-[#00E5FF]/20' : 'text-gray-400 hover:text-white'}`}>
             🛡️ Health Risk
             {selectedConditions.length > 0 && <span className="bg-amber-400 text-black px-1.5 py-0.2 rounded-full text-[10px] font-bold">{selectedConditions.length}</span>}
           </button>
@@ -2078,6 +2287,13 @@ export default function App() {
               </div>
             </div>
           </div>
+        )}
+
+        {currentTab === 'pr' && (
+          <PRWallView 
+            exerciseLogs={exerciseLogs}
+            onAddCustomExercise={handleAddCustomExercise}
+          />
         )}
 
         {currentTab === 'food' && (
